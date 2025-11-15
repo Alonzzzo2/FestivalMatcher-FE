@@ -7,7 +7,18 @@ interface LoginProps {
 export default function Login({ setIsLoggedIn: _ }: LoginProps) {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [cookieWarning, setCookieWarning] = useState(false)
 
+  // Detect if user is back at Spotify connect screen after already connecting
+  // This should be triggered by parent (App) when profile endpoint indicates not logged in
+  // For simplicity, check if window.location.pathname or hash matches Spotify connect
+  useEffect(() => {
+    // Example: If redirected to /connect or similar after login attempt
+    const isSpotifyConnectScreen = window.location.pathname.includes('connect') || window.location.hash.includes('connect');
+    if (isSpotifyConnectScreen) {
+      setCookieWarning(true);
+    }
+  }, []);
   const handleLogin = async () => {
     setLoading(true)
     setError(null)
@@ -50,6 +61,12 @@ export default function Login({ setIsLoggedIn: _ }: LoginProps) {
       <p className="text-gray-300 mb-6">
         Connect your Spotify account to get started
       </p>
+
+      {cookieWarning && (
+        <div className="mb-4 p-3 bg-yellow-900 text-yellow-200 rounded">
+          <strong>Cookies must be enabled</strong> for login to work. If you are seeing the Spotify connect screen again after already connecting, please enable cookies in your browser settings.
+        </div>
+      )}
 
       {error && (
         <div className="mb-4 p-3 bg-red-900 text-red-200 rounded">
