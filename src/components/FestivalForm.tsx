@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 interface FestivalFormProps {
   setClashfinderLink: (link: string) => void
-  setFestivalStats?: (stats: { totalPossibleLikedTracks: number; rank: number }) => void
+  setFestivalStats?: (stats: { totalPossibleLikedTracks: number; rank: number; festivalName?: string }) => void
 }
 
 export default function FestivalForm({ setClashfinderLink, setFestivalStats }: FestivalFormProps) {
@@ -145,7 +145,6 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats }: F
                     setSelectedInternalName(f.internalName);
                     setFestival(f.title);
                     setShowDropdown(false);
-                    if (setSelectedFestivalName) setSelectedFestivalName(f.title);
                   }}
                 >
                   <span className="font-bold">{f.title}</span>
