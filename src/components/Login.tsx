@@ -25,7 +25,7 @@ export default function Login({ setIsLoggedIn: _ }: LoginProps) {
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/Login/Login`,
+        `${import.meta.env.VITE_API_BASE_URL}/authentication/login`,
         {
           credentials: 'include',
         }

@@ -24,7 +24,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats }: F
   const fetchFestivals = async () => {
     if (festivalsLoaded) return;
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/Spotify/festivals/list/all`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/clashfinders/list/all`, {
         credentials: 'include',
       });
       if (res.ok) {
@@ -57,12 +57,12 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats }: F
     setLoading(true);
 
     try {
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/spotify/festival/${encodeURIComponent(festivalIdentifier)}`,
-        {
-          credentials: 'include',
-        }
-      );
+      // If you want to support cache bypass, add logic here (e.g., a checkbox or always false)
+      const forceReloadData = false; // Change to true if you want to bypass cache
+      const url = `${import.meta.env.VITE_API_BASE_URL}/festivalmatching/${encodeURIComponent(festivalIdentifier)}${forceReloadData ? '?forceReloadData=true' : ''}`;
+      const res = await fetch(url, {
+        credentials: 'include',
+      });
 
       if (!res.ok) {
         throw new Error('Failed to fetch festival data');

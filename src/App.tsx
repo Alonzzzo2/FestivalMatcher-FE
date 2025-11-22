@@ -18,7 +18,7 @@ function App() {
 
   const checkLoginStatus = async () => {
     try {
-      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/spotify/profile`
+      const apiUrl = `${import.meta.env.VITE_API_BASE_URL}/authentication/profile`
       
       const res = await fetch(apiUrl, {
         credentials: 'include',
@@ -38,7 +38,7 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      await fetch(`${import.meta.env.VITE_API_BASE_URL}/Login/Logout`, {
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/authentication/logout`, {
         method: 'POST',
         credentials: 'include',
       })
