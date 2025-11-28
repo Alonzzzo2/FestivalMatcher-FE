@@ -123,27 +123,27 @@ function App() {
                 <p className="text-gray-300 mb-6">Choose how you want to generate your festival link:</p>
                 <div className="flex flex-col gap-4">
                   <button
-                    className="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-4 rounded transition duration-200"
+                    className="w-full bg-green-500 hover:bg-green-600 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
                     onClick={() => setEntryMode('login')}
                   >
                     {isLoggedIn ? '🎵 Use Your Liked Songs' : '🎵 Login with Spotify (Liked Songs)'}
                   </button>
                   <button
-                    className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded transition duration-200"
+                    className="w-full bg-blue-500 hover:bg-blue-600 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
                     onClick={() => setEntryMode('playlist')}
                   >
                     📋 Use a Public Spotify Playlist
                   </button>
                   <div className="border-t border-gray-700 my-4"></div>
-                  <p className="text-gray-400 text-sm mb-3">Or search for best festivals by year:</p>
+                  <p className="text-gray-400 text-sm mb-0">Or search for best festivals by year:</p>
                   <button
-                    className="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 px-4 rounded transition duration-200"
+                    className="w-full bg-purple-500 hover:bg-purple-600 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
                     onClick={() => setEntryMode('year-liked')}
                   >
                     {isLoggedIn ? '📅 Best Festivals by Year (Liked Songs)' : '📅 Login for Year Search (Liked Songs)'}
                   </button>
                   <button
-                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 px-4 rounded transition duration-200 mt-3"
+                    className="w-full bg-indigo-500 hover:bg-indigo-600 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
                     onClick={() => setEntryMode('year-playlist')}
                   >
                     📅 Best Festivals by Year (Playlist)
