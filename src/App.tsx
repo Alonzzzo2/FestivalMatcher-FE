@@ -135,7 +135,7 @@ function App() {
                     📋 Use a Public Spotify Playlist
                   </button>
                   <div className="border-t border-gray-700 my-4"></div>
-                  <p className="text-gray-400 text-sm mb-0">Or search for best festivals by year:</p>
+                  <p className="text-gray-300 mb-2">Or search for best festivals by year:</p>
                   <button
                     className="w-full bg-purple-500 hover:bg-purple-600 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
                     onClick={() => setEntryMode('year-liked')}
