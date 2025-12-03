@@ -11,9 +11,13 @@ interface TopMatchesResultProps {
 
 type SortOption = 'rank' | 'tracks' | 'artists';
 
+// Constants
+const SORT_PREFERENCE_KEY_PREFIX = 'festivalMatcher_sortPreference_';
+const VALID_SORT_OPTIONS: SortOption[] = ['rank', 'tracks', 'artists'];
+
 // Helper function to get localStorage key based on mode
 const getSortPreferenceKey = (mode: 'liked' | 'playlist') => {
-    return `festivalMatcher_sortPreference_${mode}`;
+    return `${SORT_PREFERENCE_KEY_PREFIX}${mode}`;
 };
 
 // Helper function to load sort preference from localStorage
@@ -21,7 +25,7 @@ const loadSortPreference = (mode: 'liked' | 'playlist'): SortOption => {
     try {
         const key = getSortPreferenceKey(mode);
         const saved = localStorage.getItem(key);
-        if (saved && ['rank', 'tracks', 'artists'].includes(saved)) {
+        if (saved && VALID_SORT_OPTIONS.includes(saved as SortOption)) {
             return saved as SortOption;
         }
     } catch (error) {
