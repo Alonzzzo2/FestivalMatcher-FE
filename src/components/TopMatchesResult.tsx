@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { FestivalMatchResponse } from '../types';
 import ScoreCard from './ScoreCard';
 
@@ -14,24 +14,30 @@ export default function TopMatchesResult({ matches, onReset, year }: TopMatchesR
     const [sortBy, setSortBy] = useState<SortOption>('rank');
 
     // Create a copy of matches with original rank preserved
-    const matchesWithRank = matches.map((match, index) => ({
-        ...match,
-        originalRank: index + 1
-    }));
+    const matchesWithRank = useMemo(() => 
+        matches.map((match, index) => ({
+            ...match,
+            originalRank: index + 1
+        })),
+        [matches]
+    );
 
     // Sort the matches based on the selected option
-    const sortedMatches = [...matchesWithRank].sort((a, b) => {
-        switch (sortBy) {
-            case 'rank':
-                return a.originalRank - b.originalRank;
-            case 'tracks':
-                return b.matchedTracksCount - a.matchedTracksCount;
-            case 'artists':
-                return b.matchedArtistsCount - a.matchedArtistsCount;
-            default:
-                return 0;
-        }
-    });
+    const sortedMatches = useMemo(() => 
+        [...matchesWithRank].sort((a, b) => {
+            switch (sortBy) {
+                case 'rank':
+                    return a.originalRank - b.originalRank;
+                case 'tracks':
+                    return b.matchedTracksCount - a.matchedTracksCount;
+                case 'artists':
+                    return b.matchedArtistsCount - a.matchedArtistsCount;
+                default:
+                    return 0;
+            }
+        }),
+        [matchesWithRank, sortBy]
+    );
 
     // Display only top 10
     const topTen = sortedMatches.slice(0, 10);
