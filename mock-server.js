@@ -82,6 +82,7 @@ app.get('/festivalmatching/by-year/:year', (req, res) => {
   const yearNum = parseInt(year)
 
   // Generate mock array of festival matches for the year
+  // Data is returned unsorted - frontend will handle sorting
   const mockMatches = Array.from({ length: 15 }, (_, i) => {
     const festivalNum = i + 1
     const baseScore = 200 - (i * 10)
@@ -108,6 +109,7 @@ app.get('/festivalmatching/by-year/:year/playlist', (req, res) => {
   const yearNum = parseInt(year)
 
   // Generate mock array of festival matches for the year (playlist mode)
+  // Data is returned unsorted - frontend will handle sorting
   const mockMatches = Array.from({ length: 12 }, (_, i) => {
     const festivalNum = i + 1
     const baseScore = 180 - (i * 12)

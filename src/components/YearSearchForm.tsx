@@ -4,9 +4,10 @@ import { FestivalMatchResponse } from '../types';
 interface YearSearchFormProps {
     setTopMatches: (matches: FestivalMatchResponse[]) => void;
     mode: 'liked' | 'playlist';
+    onPlaylistUrlChange?: (url: string) => void;
 }
 
-export default function YearSearchForm({ setTopMatches, mode }: YearSearchFormProps) {
+export default function YearSearchForm({ setTopMatches, mode, onPlaylistUrlChange }: YearSearchFormProps) {
     const [playlistUrl, setPlaylistUrl] = useState('');
     const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
     const [loading, setLoading] = useState(false);
@@ -37,7 +38,9 @@ export default function YearSearchForm({ setTopMatches, mode }: YearSearchFormPr
             } else {
                 const params = new URLSearchParams({ playlistUrl: playlistUrl.trim() });
                 url = `${import.meta.env.VITE_API_BASE_URL}/festivalmatching/by-year/${selectedYear}/playlist?${params}`;
-                fetchOptions = {};
+                fetchOptions = { credentials: 'include' };
+                // Notify parent about the playlist URL
+                onPlaylistUrlChange?.(playlistUrl.trim());
             }
 
             const res = await fetch(url, fetchOptions);
