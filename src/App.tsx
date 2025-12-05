@@ -194,6 +194,7 @@ function App() {
                 <Login setIsLoggedIn={setIsLoggedIn} />
               ) : topMatches ? (
                 <TopMatchesResult
+                  matches={topMatches}
                   year={selectedYear}
                   onReset={() => setTopMatches(null)}
                   mode="liked"
@@ -212,10 +213,10 @@ function App() {
             ) : entryMode === 'year-playlist' ? (
               topMatches ? (
                 <TopMatchesResult
+                  matches={topMatches}
                   year={selectedYear}
                   onReset={() => setTopMatches(null)}
                   mode="playlist"
-                  playlistUrl={playlistUrl}
                 />
               ) : (
                 <YearSearchForm

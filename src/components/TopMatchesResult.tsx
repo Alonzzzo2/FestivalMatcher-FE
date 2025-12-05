@@ -1,11 +1,9 @@
 import { useState, useMemo, useEffect } from 'react';
-import { useState, useEffect } from 'react';
 import { FestivalMatchResponse } from '../types';
 import ScoreCard from './ScoreCard';
-import { SORT_PREFERENCES, SORT_LABELS, SortPreference } from '../constants';
-import { getSortPreferenceFromCookie, setSortPreferenceCookie } from '../utils/cookieUtils';
 
 interface TopMatchesResultProps {
+    matches: FestivalMatchResponse[];
     onReset: () => void;
     year: number;
     mode: 'liked' | 'playlist';
@@ -47,105 +45,41 @@ const saveSortPreference = (mode: 'liked' | 'playlist', sortBy: SortOption) => {
         console.warn('Failed to save sort preference to localStorage:', error);
     }
 };
-mode: 'liked' | 'playlist';
-playlistUrl ?: string;
-}
 
-export default function TopMatchesResult({ onReset, year, mode, playlistUrl }: TopMatchesResultProps) {
-    const [matches, setMatches] = useState<FestivalMatchResponse[]>([]);
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
+export default function TopMatchesResult({ matches, onReset, year, mode }: TopMatchesResultProps) {
+    // Initialize sortBy from localStorage based on mode
+    const [sortBy, setSortBy] = useState<SortOption>(() => loadSortPreference(mode));
 
-    // Initialize sort preference from cookie
-    const [sortPreference, setSortPreference] = useState<SortPreference>(
-        () => getSortPreferenceFromCookie() || SORT_PREFERENCES.RANKING
+    // Save sort preference to localStorage whenever it changes
+    useEffect(() => {
+        saveSortPreference(mode, sortBy);
+    }, [mode, sortBy]);
+
+    // Create a copy of matches with original rank preserved
+    const matchesWithRank = useMemo(() =>
+        matches.map((match, index) => ({
+            ...match,
+            originalRank: index + 1
+        })),
+        [matches]
     );
 
-    // Raw data from API (unsorted)
-    const [rawMatches, setRawMatches] = useState<FestivalMatchResponse[]>([]);
-
-
-    // Fetch data once on mount or when parameters change
-    useEffect(() => {
-        const abortController = new AbortController();
-
-        const fetchWithAbort = async () => {
-            setLoading(true);
-            setError(null);
-
-            try {
-                let url = '';
-                let fetchOptions: RequestInit = { credentials: 'include', signal: abortController.signal };
-
-                if (mode === 'liked') {
-                    url = `${import.meta.env.VITE_API_BASE_URL}/festivalmatching/by-year/${year}`;
-                } else {
-                    const params = new URLSearchParams({ playlistUrl: playlistUrl || '' });
-                    url = `${import.meta.env.VITE_API_BASE_URL}/festivalmatching/by-year/${year}/playlist?${params}`;
-                }
-
-                const res = await fetch(url, fetchOptions);
-
-                if (!res.ok) {
-                    throw new Error('Failed to fetch festival matches');
-                }
-
-                const data = await res.json();
-
-                if (Array.isArray(data)) {
-                    setRawMatches(data);
-                } else {
-                    throw new Error('Invalid response format');
-                }
-            } catch (err) {
-                // Ignore abort errors
-                if (err instanceof Error && err.name === 'AbortError') {
-                    return;
-                }
-
-                const message =
-                    err instanceof Error
-                        ? err.message
-                        : 'Error fetching festival matches. Please try again.';
-                setError(message);
-            } finally {
-                setLoading(false);
+    // Sort the matches based on the selected option
+    const sortedMatches = useMemo(() =>
+        [...matchesWithRank].sort((a, b) => {
+            switch (sortBy) {
+                case 'rank':
+                    return a.originalRank - b.originalRank;
+                case 'tracks':
+                    return b.matchedTracksCount - a.matchedTracksCount;
+                case 'artists':
+                    return b.matchedArtistsCount - a.matchedArtistsCount;
+                default:
+                    return 0;
             }
-        };
-
-        fetchWithAbort();
-
-        // Cleanup: abort the request if component unmounts or dependencies change
-        return () => {
-            abortController.abort();
-        };
-    }, [year, mode, playlistUrl]);
-
-    // Sort data client-side whenever sort preference changes
-    useEffect(() => {
-        if (rawMatches.length === 0) {
-            setMatches([]);
-            return;
-        }
-
-        const sorted = [...rawMatches];
-
-        if (sortPreference === SORT_PREFERENCES.MATCHED_ARTISTS) {
-            sorted.sort((a, b) => b.matchedArtistsCount - a.matchedArtistsCount);
-        } else if (sortPreference === SORT_PREFERENCES.MATCHED_TRACKS) {
-            sorted.sort((a, b) => b.matchedTracksCount - a.matchedTracksCount);
-        } else {
-            // Default to Ranking (tracksPerShow)
-            sorted.sort((a, b) => b.tracksPerShow - a.tracksPerShow);
-        }
-
-        setMatches(sorted);
-    }, [rawMatches, sortPreference]);
-
-    const handleSortChange = (newSort: SortPreference) => {
-        setSortPreference(newSort);
-        setSortPreferenceCookie(newSort);
-    };
+        }),
+        [matchesWithRank, sortBy]
+    );
 
     // Display only top 10
     const topTen = sortedMatches.slice(0, 10);
@@ -177,36 +111,6 @@ export default function TopMatchesResult({ onReset, year, mode, playlistUrl }: T
                     <option value="artists">👥 Number of Liked Artists</option>
                 </select>
             </div>
-
-            {/* Sort Options */}
-            <div className="mb-6 flex flex-wrap justify-center gap-3">
-                {Object.values(SORT_PREFERENCES).map((sortOption) => (
-                    <button
-                        key={sortOption}
-                        onClick={() => handleSortChange(sortOption)}
-                        className={`px-6 py-2 rounded-lg font-medium transition-all duration-200 ${sortPreference === sortOption
-                            ? 'bg-green-500 text-white shadow-lg scale-105'
-                            : 'bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white'
-                            }`}
-                        aria-label={`Sort by ${SORT_LABELS[sortOption]}`}
-                        aria-pressed={sortPreference === sortOption}
-                    >
-                        {SORT_LABELS[sortOption]}
-                    </button>
-                ))}
-            </div>
-
-            {loading && (
-                <div className="text-center text-white mb-6">
-                    <p>Loading festivals...</p>
-                </div>
-            )}
-
-            {error && (
-                <div className="mb-6 p-3 bg-red-900 text-red-200 rounded">
-                    {error}
-                </div>
-            )}
 
             <div className="space-y-6 mb-6">
                 {topTen.map((festival, index) => (
