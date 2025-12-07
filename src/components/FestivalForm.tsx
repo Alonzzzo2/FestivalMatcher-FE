@@ -14,9 +14,7 @@ interface FestivalFormProps {
   festivalsError?: string | null;
 }
 
-export default function FestivalForm({ setClashfinderLink, setFestivalStats, festivals = [], festivalsError = null }: FestivalFormProps) {
-  // Use mode from props, fallback to 'liked' for backward compatibility
-  const mode = typeof arguments[0]?.mode === 'string' ? arguments[0].mode : 'liked';
+export default function FestivalForm({ setClashfinderLink, setFestivalStats, mode = 'liked', festivals = [], festivalsError = null }: FestivalFormProps) {
   const [playlistUrl, setPlaylistUrl] = useState('');
   const [festival, setFestival] = useState('');
   const [loading, setLoading] = useState(false);
@@ -71,7 +69,28 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, fes
       const res = await fetch(url, fetchOptions);
 
       if (!res.ok) {
-        throw new Error('Failed to fetch festival data');
+        // Try to get error details from response body
+        let errorMessage = 'Failed to fetch festival data';
+        try {
+          const errorData = await res.json();
+          if (errorData.error || errorData.message) {
+            errorMessage = errorData.error || errorData.message;
+          }
+        } catch {
+          // If we can't parse JSON, use status-based messages
+          if (res.status === 404) {
+            errorMessage = `Festival "${festivalIdentifier}" not found. Please check the festival name and try again.`;
+          } else if (res.status === 400) {
+            errorMessage = 'Invalid request. Please check your input and try again.';
+          } else if (res.status === 401 || res.status === 403) {
+            errorMessage = 'Authentication required. Please log in with Spotify.';
+          } else if (res.status >= 500) {
+            errorMessage = `Server error (${res.status}). Please try again later.`;
+          } else {
+            errorMessage = `Failed to fetch festival data (HTTP ${res.status})`;
+          }
+        }
+        throw new Error(errorMessage);
       }
 
       const contentType = res.headers.get('content-type');
@@ -107,10 +126,22 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, fes
         setError('No valid Clashfinder URL returned');
       }
     } catch (err) {
-      const message =
-        err instanceof Error
-          ? err.message
-          : 'Error fetching festival data. Please try again.';
+      let message = 'Error fetching festival data. Please try again.';
+      
+      if (err instanceof Error) {
+        message = err.message;
+        
+        // Log error details for debugging
+        if (err.name === 'TypeError' && err.message.includes('fetch')) {
+          // Network error
+          message = 'Network error. Please check your internet connection and try again.';
+          console.warn('Network error during festival fetch:', err);
+        } else {
+          // Log other errors for debugging
+          console.warn('Festival fetch error:', err.message);
+        }
+      }
+      
       setError(message);
     } finally {
       setLoading(false);
