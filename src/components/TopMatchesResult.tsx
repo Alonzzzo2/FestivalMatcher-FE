@@ -91,7 +91,7 @@ export default function TopMatchesResult({ matches, onReset, year, mode }: TopMa
                     Top Festivals for {year}
                 </h2>
                 <p className="text-gray-400">
-                    Showing top {topTen.length} matches based on your music taste
+                    Showing top {topTen.length} matches based on your favorite music
                 </p>
             </div>
 

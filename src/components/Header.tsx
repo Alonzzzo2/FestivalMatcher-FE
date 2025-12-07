@@ -1,15 +1,8 @@
-import logoSvg from '../assets/logo.svg';
-
 interface HeaderProps {
   isLoggedIn?: boolean
   onLogout?: () => void
   onHeadlineClick?: () => void
 }
-
-const FestivalMatcherLogo = () => (
-  <img src={logoSvg} alt="Festival Matcher Logo" className="w-full h-full" />
-);
-
 
 export default function Header(props: HeaderProps) {
   const { isLoggedIn = false, onLogout, onHeadlineClick } = props;
@@ -28,27 +21,16 @@ export default function Header(props: HeaderProps) {
           </div>
         )}
         <div className="flex flex-col items-center gap-6 cursor-pointer group" onClick={typeof onHeadlineClick === 'function' ? onHeadlineClick : undefined}>
-          {/* Title with Flanking Logos */}
+          {/* Title */}
           <div className="flex items-center gap-4 md:gap-6">
-            {/* Left Logo - SVG */}
-            <div className="w-16 h-16 md:w-20 md:h-20 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-6">
-              <FestivalMatcherLogo />
-            </div>
-
-            {/* Title */}
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-green-400 via-green-500 to-purple-500 bg-clip-text text-transparent group-hover:from-green-300 group-hover:to-purple-400 transition-all duration-300">
               Festival Matcher
             </h1>
-
-            {/* Right Logo - SVG */}
-            <div className="w-16 h-16 md:w-20 md:h-20 transition-transform duration-300 group-hover:scale-110 group-hover:-rotate-6">
-              <FestivalMatcherLogo />
-            </div>
           </div>
 
           {/* Subtitle */}
           <p className="text-gray-400 text-sm md:text-base max-w-xl mx-auto text-center">
-            Find your perfect festival lineup based on your Spotify taste
+            Find your perfect festival lineup based on your favorite music
           </p>
         </div>
       </div>
