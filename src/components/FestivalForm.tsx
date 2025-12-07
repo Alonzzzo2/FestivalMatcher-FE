@@ -27,6 +27,18 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, fes
 
   // Use error from props if available
   const displayError = error || festivalsError;
+  // Validation helper to check if form is valid
+  const isFormValid = () => {
+    const festivalIdentifier = selectedInternalName || search.trim();
+    if (!festivalIdentifier) {
+      return false;
+    }
+    if (mode === 'playlist' && !playlistUrl.trim()) {
+      return false;
+    }
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -186,8 +198,8 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, fes
 
         <button
           type="submit"
-          disabled={loading}
-          className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 text-white font-bold py-3 px-4 rounded transition duration-200"
+          disabled={loading || !isFormValid()}
+          className="w-full bg-green-500 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded transition duration-200"
         >
           {loading ? 'Loading...' : '🎪 Get My Clashfinder'}
         </button>
