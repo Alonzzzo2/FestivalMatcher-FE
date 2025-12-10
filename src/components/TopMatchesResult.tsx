@@ -114,7 +114,7 @@ export default function TopMatchesResult({ matches, onReset, year, mode }: TopMa
 
             <div className="space-y-6 mb-6">
                 {topTen.map((festival, index) => (
-                    <div key={festival.festival.id} className="relative">
+                    <div key={festival.festivalMetadata.id} className="relative">
                         {/* Rank Badge - Shows current sort position */}
                         <div className="absolute -left-4 top-4 z-10">
                             <div className="bg-green-500 text-white rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg">

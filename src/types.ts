@@ -3,6 +3,21 @@ export interface FestivalInfo {
     id: string;
     url: string;
     startDate: string; // ISO 8601 date string
+    endDate?: string;
+    printAdvisory: number;
+    totalActs: number;
+}
+
+export interface FestivalMetadata {
+    name: string;
+    id: string;
+    startDate: string;
+    endDate?: string;
+    printAdvisory: number;
+    numDays: number;
+    numStages: number;
+    numActs: number;
+    url?: string; // Optional as it might be at root
 }
 
 export interface FestivalMatchResponse {
@@ -11,5 +26,5 @@ export interface FestivalMatchResponse {
     matchedTracksCount: number;
     tracksPerShow: number;
     rankingMessage: string;
-    festival: FestivalInfo;
+    festivalMetadata: FestivalMetadata;
 }

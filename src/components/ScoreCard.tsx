@@ -36,9 +36,24 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
         <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-gray-900">
             {/* Festival Header */}
             <div className="mb-4">
-                <h2 className="text-2xl font-bold text-gray-900">{festival.festival.name}</h2>
+                <div className="flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-gray-900">{festival.festivalMetadata.name}</h2>
+                    {festival.festivalMetadata.url && (
+                        <a
+                            href={festival.festivalMetadata.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-400 hover:text-green-500 transition-colors"
+                            title="Official Website"
+                            onClick={(e) => e.stopPropagation()}
+                        >
+                            🌐
+                        </a>
+                    )}
+                </div>
                 <p className="text-sm text-gray-600">
-                    📅 {formatDate(festival.festival.startDate)}
+                    📅 {formatDate(festival.festivalMetadata.startDate)}
+                    {festival.festivalMetadata.endDate && ` - ${formatDate(festival.festivalMetadata.endDate)}`}
                 </p>
             </div>
 
@@ -51,7 +66,12 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                     </div>
                     <div className="text-center">
                         <p className="text-sm font-semibold text-gray-300 mb-1">Matched Artists</p>
-                        <p className="text-4xl font-bold text-green-400">{festival.matchedArtistsCount}</p>
+                        <div className="flex flex-col items-center">
+                            <p className="text-4xl font-bold text-green-400">{festival.matchedArtistsCount}</p>
+                            {festival.festivalMetadata.numActs > 0 && (
+                                <p className="text-xs text-gray-400 mt-1">out of {festival.festivalMetadata.numActs}</p>
+                            )}
+                        </div>
                     </div>
                 </div>
                 <div className="text-center border-t border-gray-600 pt-3">
