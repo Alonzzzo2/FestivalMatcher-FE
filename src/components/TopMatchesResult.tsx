@@ -5,7 +5,8 @@ import ScoreCard from './ScoreCard';
 interface TopMatchesResultProps {
     matches: FestivalMatchResponse[];
     onReset: () => void;
-    year: number;
+    year?: number;
+    title?: string;
     mode: 'liked' | 'playlist';
 }
 
@@ -46,7 +47,7 @@ const saveSortPreference = (mode: 'liked' | 'playlist', sortBy: SortOption) => {
     }
 };
 
-export default function TopMatchesResult({ matches, onReset, year, mode }: TopMatchesResultProps) {
+export default function TopMatchesResult({ matches, onReset, year, title, mode }: TopMatchesResultProps) {
     // Initialize sortBy from localStorage based on mode
     const [sortBy, setSortBy] = useState<SortOption>(() => loadSortPreference(mode));
 
@@ -88,7 +89,7 @@ export default function TopMatchesResult({ matches, onReset, year, mode }: TopMa
         <div className="max-w-4xl mx-auto">
             <div className="mb-6 text-center">
                 <h2 className="text-3xl font-bold text-white mb-2">
-                    Top Festivals for {year}
+                    {title || `Top Festivals for ${year}`}
                 </h2>
                 <p className="text-gray-400">
                     Showing top {topTen.length} matches based on your favorite music
@@ -106,7 +107,7 @@ export default function TopMatchesResult({ matches, onReset, year, mode }: TopMa
                     onChange={(e) => setSortBy(e.target.value as SortOption)}
                     className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-green-500"
                 >
-                    <option value="rank">🏆 Rank (Default)</option>
+                    <option value="rank">🏆 Average matched tracks per show</option>
                     <option value="tracks">🎵 Number of Liked Songs</option>
                     <option value="artists">👥 Number of Liked Artists</option>
                 </select>
@@ -137,7 +138,7 @@ export default function TopMatchesResult({ matches, onReset, year, mode }: TopMa
                 onClick={onReset}
                 className="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded transition duration-200"
             >
-                ← Try Another Year
+                ← Try Another Search
             </button>
         </div>
     );
