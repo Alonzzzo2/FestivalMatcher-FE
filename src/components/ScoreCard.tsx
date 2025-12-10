@@ -68,8 +68,8 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                         <p className="text-sm font-semibold text-gray-300 mb-1">Matched Artists</p>
                         <div className="flex flex-col items-center">
                             <p className="text-4xl font-bold text-green-400">{festival.matchedArtistsCount}</p>
-                            {festival.festivalMetadata.numActs > 0 && (
-                                <p className="text-xs text-gray-400 mt-1">out of {festival.festivalMetadata.numActs}</p>
+                            {(festival.festivalMetadata.numPerformingArtists ?? festival.festivalMetadata.numActs) > 0 && (
+                                <p className="text-xs text-gray-400 mt-1">out of {festival.festivalMetadata.numPerformingArtists ?? festival.festivalMetadata.numActs}</p>
                             )}
                         </div>
                     </div>
