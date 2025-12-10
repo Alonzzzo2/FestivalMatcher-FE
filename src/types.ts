@@ -17,6 +17,7 @@ export interface FestivalMetadata {
     numDays: number;
     numStages: number;
     numActs: number;
+    numPerformingArtists?: number; // Optional as it might be missing in some responses
     url?: string; // Optional as it might be at root
 }
 

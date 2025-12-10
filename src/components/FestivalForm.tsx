@@ -100,6 +100,12 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
       setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === 'PageDown') {
+      e.preventDefault();
+      setActiveIndex(prev => Math.min(prev + 10, filteredFestivals.length - 1));
+    } else if (e.key === 'PageUp') {
+      e.preventDefault();
+      setActiveIndex(prev => Math.max(prev - 10, 0));
     } else if (e.key === 'Enter') {
       e.preventDefault();
       if (activeIndex >= 0 && activeIndex < filteredFestivals.length) {
@@ -328,30 +334,43 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
             <div
               ref={dropdownRef}
               className="max-h-60 overflow-y-auto mb-2 absolute z-10 bg-gray-800 border border-gray-600 rounded shadow-lg"
-              style={{ width: 'max-content', minWidth: '100%', maxWidth: '90vw' }}
+              style={{ width: '100%' }}
               onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
             >
               {displayError && (
                 <div className="mb-2 p-2 bg-red-900 text-red-200 rounded">{displayError}</div>
               )}
-              {!displayError && filteredFestivals.map((f, index) => (
+              {!displayError && filteredFestivals.slice(0, 100).map((f, index) => (
                 <div
                   key={f.id}
                   className={`cursor-pointer px-4 py-2 border-b border-gray-700 last:border-0 ${index === activeIndex ? 'bg-green-600 text-white' :
-                      selectedId === f.id ? 'bg-green-800 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                    selectedId === f.id ? 'bg-green-800 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
                     }`}
                   onClick={() => selectFestival(f)}
                 >
-                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-1">
-                    <span className="font-bold whitespace-nowrap">{f.name}</span>
-                    <span className={`text-xs ${index === activeIndex || selectedId === f.id ? 'text-green-100' : 'text-gray-400'}`}>
-                      {new Date(f.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                      {f.endDate && ` - ${new Date(f.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
-                      {f.totalActs > 0 && ` • ${f.totalActs} acts`}
-                    </span>
+                  <div className="flex justify-between items-start w-full gap-2">
+                    <span className="font-bold flex-1">{f.name}</span>
+                    <div className={`flex flex-col items-end text-xs ${index === activeIndex || selectedId === f.id ? 'text-green-100' : 'text-gray-400'}`}>
+                      <span>
+                        {new Date(f.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      </span>
+                      {f.endDate && (
+                        <span>
+                          {new Date(f.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      )}
+                      {f.totalActs > 0 && (
+                        <span className="opacity-75">{f.totalActs} acts</span>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
+              {!displayError && filteredFestivals.length > 100 && (
+                <div className="text-gray-400 px-4 py-2 text-sm italic border-t border-gray-700">
+                  ...and {filteredFestivals.length - 100} more. Keep typing to refine search.
+                </div>
+              )}
               {search && !displayError && filteredFestivals.length === 0 && (
                 <div className="text-gray-400 px-4 py-2">No festivals found matching "{search}"</div>
               )}
