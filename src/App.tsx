@@ -19,10 +19,13 @@ function App() {
   const [entryMode, setEntryMode] = useState<'choose' | 'login' | 'playlist' | 'year-liked' | 'year-playlist'>('choose');
 
   const [festivals, setFestivals] = useState<Array<{
-    title: string;
-    internalName: string;
+    name: string;
+    id: string;
+    url: string;
     startDate: string;
+    endDate?: string;
     printAdvisory: number;
+    totalActs: number;
   }>>([])
   const [festivalsError, setFestivalsError] = useState<string | null>(null)
 

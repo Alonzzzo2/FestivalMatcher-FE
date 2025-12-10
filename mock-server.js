@@ -11,11 +11,12 @@ app.use(cors({
 app.use(express.json())
 
 // Mock data
+// Mock data
 const mockFestivals = [
-  { title: 'Glastonbury 2024', internalName: 'glastonbury2024', startDate: '2024-06-26', printAdvisory: 0 },
-  { title: 'Coachella 2024', internalName: 'coachella2024', startDate: '2024-04-12', printAdvisory: 0 },
-  { title: 'Reading 2024', internalName: 'reading2024', startDate: '2024-08-23', printAdvisory: 0 },
-  { title: 'Leeds 2024', internalName: 'leeds2024', startDate: '2024-08-23', printAdvisory: 0 },
+  { name: 'Glastonbury 2024', id: 'glastonbury2024', url: 'https://www.glastonburyfestivals.co.uk', startDate: '2024-06-26', printAdvisory: 1, totalActs: 147 },
+  { name: 'Coachella 2024', id: 'coachella2024', url: 'https://www.coachella.com', startDate: '2024-04-12', printAdvisory: 0, totalActs: 85 },
+  { name: 'Reading 2024', id: 'reading2024', url: 'https://www.readingfestival.com', startDate: '2024-08-23', printAdvisory: 2, totalActs: 90 },
+  { name: 'Leeds 2024', id: 'leeds2024', url: 'https://www.leedsfestival.com', startDate: '2024-08-23', printAdvisory: 2, totalActs: 90 },
 ]
 
 // Auth endpoints
@@ -54,7 +55,9 @@ app.get('/festivalmatching/:festival', (req, res) => {
       name: `${festival} Festival`,
       id: festival,
       url: `https://clashfinder.com/s/${festival}/`,
-      startDate: new Date(Date.now() + (60 * 60 * 24 * 30 * 1000)).toISOString()
+      startDate: new Date(Date.now() + (60 * 60 * 24 * 30 * 1000)).toISOString(),
+      printAdvisory: 1,
+      totalActs: 150
     }
   })
 })
@@ -71,7 +74,9 @@ app.get('/festivalmatching/:festival/playlist', (req, res) => {
       name: `${festival} Festival`,
       id: festival,
       url: `https://clashfinder.com/s/${festival}/`,
-      startDate: new Date(Date.now() + (60 * 60 * 24 * 45 * 1000)).toISOString()
+      startDate: new Date(Date.now() + (60 * 60 * 24 * 45 * 1000)).toISOString(),
+      printAdvisory: 2,
+      totalActs: 120
     }
   })
 })
@@ -96,7 +101,9 @@ app.get('/festivalmatching/by-year/:year', (req, res) => {
         name: `Festival ${festivalNum} ${year}`,
         id: `festival${yearNum}-${festivalNum}`,
         url: `https://clashfinder.com/s/festival${yearNum}-${festivalNum}/`,
-        startDate: new Date(`${year}-${String(i % 12 + 1).padStart(2, '0')}-15T00:00:00`).toISOString()
+        startDate: new Date(`${year}-${String(i % 12 + 1).padStart(2, '0')}-15T00:00:00`).toISOString(),
+        printAdvisory: Math.floor(Math.random() * 5),
+        totalActs: 100 + i * 10
       }
     }
   })
@@ -123,7 +130,9 @@ app.get('/festivalmatching/by-year/:year/playlist', (req, res) => {
         name: `Festival ${festivalNum} ${year}`,
         id: `festival${yearNum}-p${festivalNum}`,
         url: `https://clashfinder.com/s/festival${yearNum}-p${festivalNum}/`,
-        startDate: new Date(`${year}-${String(i % 12 + 1).padStart(2, '0')}-20T00:00:00`).toISOString()
+        startDate: new Date(`${year}-${String(i % 12 + 1).padStart(2, '0')}-20T00:00:00`).toISOString(),
+        printAdvisory: Math.floor(Math.random() * 5),
+        totalActs: 90 + i * 5
       }
     }
   })

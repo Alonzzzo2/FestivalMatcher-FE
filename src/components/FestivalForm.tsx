@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo, useEffect, useRef } from 'react'
 import { FestivalMatchResponse } from '../types';
 
 interface FestivalFormProps {
@@ -6,13 +6,39 @@ interface FestivalFormProps {
   setFestivalStats?: (stats: FestivalMatchResponse) => void
   mode?: 'liked' | 'playlist';
   festivals?: Array<{
-    title: string;
-    internalName: string;
+    name: string;
+    id: string;
+    url: string;
     startDate: string;
+    endDate?: string;
     printAdvisory: number;
+    totalActs: number;
   }>;
   festivalsError?: string | null;
 }
+
+// Simple fuzzy match function: checks if all characters of query appear in target in order
+const fuzzyMatch = (query: string, target: string): boolean => {
+  const q = query.toLowerCase();
+  const t = target.toLowerCase();
+
+  if (!q) return true;
+
+  let qIdx = 0;
+  let tIdx = 0;
+
+  while (qIdx < q.length && tIdx < t.length) {
+    if (q[qIdx] === t[tIdx]) {
+      qIdx++;
+    }
+    tIdx++;
+  }
+
+  return qIdx === q.length;
+};
+
+// Highlights the matching characters in the name (optional visual enhancement, keeping it simple for now)
+// Actually, let's keep it robust and simple.
 
 export default function FestivalForm({ setClashfinderLink, setFestivalStats, mode = 'liked', festivals = [], festivalsError = null }: FestivalFormProps) {
   const [playlistUrl, setPlaylistUrl] = useState('');
@@ -20,15 +46,38 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
-  const [selectedInternalName, setSelectedInternalName] = useState('');
+  const [selectedId, setSelectedId] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
+
+  // Keyboard navigation state
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Use error from props if available
   const displayError = error || festivalsError;
+
+  // Filter festivals based on fuzzy search
+  const filteredFestivals = useMemo(() => {
+    if (!festivals) return [];
+    if (!search && !selectedId) return festivals; // Show all if no search
+
+    // If an item is selected, we might want to show all or just the selected one.
+    // Standard behavior: if user types, filter.
+    if (selectedId && festival === search) return festivals;
+
+    return festivals.filter(f => fuzzyMatch(search, f.name));
+  }, [festivals, search, selectedId, festival]);
+
+  // Reset active index when search changes
+  useEffect(() => {
+    setActiveIndex(-1);
+  }, [search]);
+
   // Validation helper to check if form is valid
   const isFormValid = () => {
-    const festivalIdentifier = selectedInternalName || search.trim();
-    if (!festivalIdentifier) {
+    // Require a valid selection from the dropdown
+    if (!selectedId) {
       return false;
     }
     if (mode === 'playlist' && !playlistUrl.trim()) {
@@ -37,16 +86,62 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
     return true;
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (!showDropdown) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        setShowDropdown(true);
+      }
+      return;
+    }
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev < filteredFestivals.length - 1 ? prev + 1 : prev));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setActiveIndex(prev => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeIndex >= 0 && activeIndex < filteredFestivals.length) {
+        const selected = filteredFestivals[activeIndex];
+        selectFestival(selected);
+      }
+    } else if (e.key === 'Escape') {
+      setShowDropdown(false);
+      setActiveIndex(-1);
+      inputRef.current?.blur();
+    }
+  };
+
+  const selectFestival = (f: { id: string; name: string }) => {
+    setSelectedId(f.id);
+    setFestival(f.name);
+    setSearch(f.name);
+    setShowDropdown(false);
+    setActiveIndex(-1);
+  };
+
+  // Scroll active item into view
+  useEffect(() => {
+    if (activeIndex >= 0 && dropdownRef.current) {
+      const activeItem = dropdownRef.current.children[activeIndex] as HTMLElement;
+      if (activeItem) {
+        activeItem.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+      }
+    }
+  }, [activeIndex]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-    // Use selectedInternalName if chosen, otherwise use the search value
-    const festivalIdentifier = selectedInternalName || search.trim();
-    if (!festivalIdentifier) {
-      setError('Please select or enter a festival name');
+    // Use selectedId - strictly require it
+    if (!selectedId) {
+      setError('Please select a festival from the list');
       return;
     }
+
+    const festivalIdentifier = selectedId;
 
     if (mode === 'playlist' && !playlistUrl.trim()) {
       setError('Please enter a valid public Spotify playlist URL');
@@ -127,10 +222,10 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
       }
     } catch (err) {
       let message = 'Error fetching festival data. Please try again.';
-      
+
       if (err instanceof Error) {
         message = err.message;
-        
+
         // Log error details for debugging
         if (err.name === 'TypeError' && err.message.includes('fetch')) {
           // Network error
@@ -141,7 +236,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
           console.warn('Festival fetch error:', err.message);
         }
       }
-      
+
       setError(message);
     } finally {
       setLoading(false);
@@ -174,50 +269,96 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
           </label>
           <input
             id="festival-search"
+            ref={inputRef}
             type="text"
             autoComplete="off"
-            value={selectedInternalName ? festival : search}
+            value={selectedId && festival === search ? festival : search}
             onFocus={() => { setShowDropdown(true); }}
-            onBlur={() => setTimeout(() => setShowDropdown(false), 150)}
+            onBlur={() => setTimeout(() => {
+              // Delay hiding to allow click events on items
+              if (document.activeElement !== inputRef.current) {
+                setShowDropdown(false);
+              }
+              // If blurring and exact match isn't selected, revert or clear? 
+              // Usually we just let the user fix it or select.
+              // Logic from original:
+              /*
+              if (!selectedId) {
+                setSearch('');
+              } else {
+                setSearch(festival);
+              }
+              */
+              // We'll keep this simple: if nothing selected, search stays as is (or clears).
+              // But let's respect that we want to ensure valid input.
+              if (!selectedId) {
+                // optionally clear search if invalid
+              }
+            }, 200)}
             onChange={(e) => {
               setSearch(e.target.value);
-              setSelectedInternalName('');
-              setFestival('');
+              // When typing, we are no longer "selected" unless we happen to type the exact name,
+              // but usually we reset selection state
+              if (selectedId) {
+                setSelectedId('');
+                setFestival('');
+              }
               setShowDropdown(true);
             }}
+            onKeyDown={handleKeyDown}
             placeholder="Type to search..."
             className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-green-500 mb-2"
             disabled={loading}
           />
+          {(search || selectedId) && !loading && (
+            <button
+              type="button"
+              className="absolute right-3 top-10 text-gray-400 hover:text-white"
+              onClick={() => {
+                setSearch('');
+                setSelectedId('');
+                setFestival('');
+                inputRef.current?.focus();
+              }}
+            >
+              ✕
+            </button>
+          )}
           {showDropdown && (
-            <div className="max-h-40 overflow-y-auto mb-2 absolute z-10 bg-gray-800 border border-gray-600 rounded shadow-lg" style={{ width: 'inherit', minWidth: '200px' }}>
+            <div
+              ref={dropdownRef}
+              className="max-h-60 overflow-y-auto mb-2 absolute z-10 bg-gray-800 border border-gray-600 rounded shadow-lg"
+              style={{ width: 'max-content', minWidth: '100%', maxWidth: '90vw' }}
+              onMouseDown={(e) => e.preventDefault()} // Prevent blur on click
+            >
               {displayError && (
                 <div className="mb-2 p-2 bg-red-900 text-red-200 rounded">{displayError}</div>
               )}
-              {!displayError && Array.isArray(festivals) && festivals.filter(f => f.title?.toLowerCase().includes(search.toLowerCase())).map(f => (
+              {!displayError && filteredFestivals.map((f, index) => (
                 <div
-                  key={f.internalName}
-                  className={`cursor-pointer px-2 py-1 rounded border ${selectedInternalName === f.internalName ? 'bg-green-700 text-white border-green-400' : 'bg-gray-700 text-gray-200 border-transparent'} mb-1 hover:bg-green-600`}
-                  onMouseDown={() => {
-                    setSelectedInternalName(f.internalName);
-                    setFestival(f.title);
-                    setShowDropdown(false);
-                  }}
+                  key={f.id}
+                  className={`cursor-pointer px-4 py-2 border-b border-gray-700 last:border-0 ${index === activeIndex ? 'bg-green-600 text-white' :
+                      selectedId === f.id ? 'bg-green-800 text-white' : 'bg-gray-700 text-gray-200 hover:bg-gray-600'
+                    }`}
+                  onClick={() => selectFestival(f)}
                 >
-                  <span className="font-bold">{f.title}</span>
-                  <span className="ml-2 text-xs text-gray-400">({f.internalName})</span>
-                  {selectedInternalName === f.internalName && (
-                    <span className="ml-2 text-green-300 font-bold">✓</span>
-                  )}
+                  <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center w-full gap-1">
+                    <span className="font-bold whitespace-nowrap">{f.name}</span>
+                    <span className={`text-xs ${index === activeIndex || selectedId === f.id ? 'text-green-100' : 'text-gray-400'}`}>
+                      {new Date(f.startDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                      {f.endDate && ` - ${new Date(f.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}
+                      {f.totalActs > 0 && ` • ${f.totalActs} acts`}
+                    </span>
+                  </div>
                 </div>
               ))}
-              {search && !displayError && Array.isArray(festivals) && festivals.filter(f => f.title?.toLowerCase().includes(search.toLowerCase())).length === 0 && (
-                <div className="text-gray-400 px-2 py-1">No festivals found</div>
+              {search && !displayError && filteredFestivals.length === 0 && (
+                <div className="text-gray-400 px-4 py-2">No festivals found matching "{search}"</div>
               )}
             </div>
           )}
           <p className="text-gray-400 text-sm mt-1">
-            You can select a festival from the list or manually enter a festival name.
+            Type to fuzzy search (e.g. "c r f" for "Cambridge Rock Festival")
           </p>
         </div>
 
