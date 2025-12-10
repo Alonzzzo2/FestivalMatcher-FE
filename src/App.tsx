@@ -5,6 +5,7 @@ import Login from './components/Login'
 import FestivalForm from './components/FestivalForm'
 import Result from './components/Result'
 import YearSearchForm from './components/YearSearchForm'
+import DateRangeSearchForm from './components/DateRangeSearchForm'
 import TopMatchesResult from './components/TopMatchesResult'
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { FestivalMatchResponse } from './types';
@@ -15,8 +16,9 @@ function App() {
   const [festivalStats, setFestivalStats] = useState<FestivalMatchResponse | null>(null)
   const [topMatches, setTopMatches] = useState<FestivalMatchResponse[] | null>(null)
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
+  const [dateRange, setDateRange] = useState<{ start: string, end: string } | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const [entryMode, setEntryMode] = useState<'choose' | 'login' | 'playlist' | 'year-liked' | 'year-playlist'>('choose');
+  const [entryMode, setEntryMode] = useState<'choose' | 'login' | 'playlist' | 'year-liked' | 'year-playlist' | 'date-range-liked' | 'date-range-playlist'>('choose');
 
   const [festivals, setFestivals] = useState<Array<{
     name: string;
@@ -151,6 +153,20 @@ function App() {
                   >
                     📅 Best Festivals by Year (Playlist)
                   </button>
+                  <div className="border-t border-gray-700 my-4"></div>
+                  <p className="text-gray-300 mb-2">Or search by Date Range:</p>
+                  <button
+                    className="w-full bg-teal-600 hover:bg-teal-700 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
+                    onClick={() => setEntryMode('date-range-liked')}
+                  >
+                    {isLoggedIn ? '🗓️ Search Date Range (Liked Songs)' : '🗓️ Login for Date Range (Liked Songs)'}
+                  </button>
+                  <button
+                    className="w-full bg-cyan-600 hover:bg-cyan-700 text-white text-base font-bold py-3 px-4 rounded transition duration-200"
+                    onClick={() => setEntryMode('date-range-playlist')}
+                  >
+                    🗓️ Search Date Range (Playlist)
+                  </button>
                 </div>
               </div>
             ) : entryMode === 'login' ? (
@@ -228,6 +244,38 @@ function App() {
                       setSelectedYear(new Date().getFullYear());
                     }
                   }}
+                  mode="playlist"
+                />
+              )
+            ) : entryMode === 'date-range-liked' ? (
+              !isLoggedIn ? (
+                <Login setIsLoggedIn={setIsLoggedIn} />
+              ) : topMatches ? (
+                <TopMatchesResult
+                  matches={topMatches}
+                  title={dateRange ? `Top Festivals (${new Date(dateRange.start).toLocaleDateString()} - ${new Date(dateRange.end).toLocaleDateString()})` : "Top Festivals by Date Range"}
+                  onReset={() => { setTopMatches(null); setDateRange(null); }}
+                  mode="liked"
+                />
+              ) : (
+                <DateRangeSearchForm
+                  setTopMatches={setTopMatches}
+                  setDateRange={setDateRange}
+                  mode="liked"
+                />
+              )
+            ) : entryMode === 'date-range-playlist' ? (
+              topMatches ? (
+                <TopMatchesResult
+                  matches={topMatches}
+                  title={dateRange ? `Top Festivals (${new Date(dateRange.start).toLocaleDateString()} - ${new Date(dateRange.end).toLocaleDateString()})` : "Top Festivals by Date Range"}
+                  onReset={() => { setTopMatches(null); setDateRange(null); }}
+                  mode="playlist"
+                />
+              ) : (
+                <DateRangeSearchForm
+                  setTopMatches={setTopMatches}
+                  setDateRange={setDateRange}
                   mode="playlist"
                 />
               )
