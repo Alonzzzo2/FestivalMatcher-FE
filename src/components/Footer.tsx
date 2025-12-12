@@ -37,14 +37,9 @@ export default function Footer({ onHeartClick }: FooterProps) {
           href="https://www.buymeacoffee.com/festivalmatcher"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-[#BD5FFF] hover:bg-[#a64ce0] text-white px-4 py-2 rounded-lg font-bold transition-transform hover:scale-105"
+          className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-transform hover:scale-105"
         >
-          <img
-            src="https://cdn.buymeacoffee.com/buttons/bmc-new-btn-logo.svg"
-            alt="Buy me a coffee"
-            className="w-5 h-5"
-          />
-          Buy me a coffee
+          🥤 Buy me a coke
         </a>
       </div>
     </footer>

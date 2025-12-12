@@ -37,6 +37,14 @@ function App() {
     return localStorage.getItem('enableLiked') === 'true';
   });
 
+  // Automatically enable liked songs features if user is logged in
+  useEffect(() => {
+    if (isLoggedIn) {
+      setEnableLiked(true);
+      localStorage.setItem('enableLiked', 'true');
+    }
+  }, [isLoggedIn]);
+
   const toggleLiked = () => setEnableLiked(!enableLiked);
 
   const [festivals, setFestivals] = useState<Array<{
@@ -139,13 +147,13 @@ function App() {
     <ErrorBoundary>
       <div className="flex flex-col min-h-screen bg-gray-900">
         <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} onHeadlineClick={() => { setEntryMode('choose'); setTopMatches(null); setClashfinderLink(null); }} />
-        <main className="flex-grow container mx-auto px-4 py-8">
+        <main className="flex-grow container mx-auto px-4 py-4 md:py-8">
           <div className={topMatches ? "max-w-5xl mx-auto" : "max-w-md mx-auto"}>
             {entryMode === 'choose' ? (
-              <div className="bg-gray-800 p-8 rounded-lg shadow-lg text-center">
-                <div className="flex flex-col gap-6">
+              <div className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg text-center">
+                <div className="flex flex-col gap-4 md:gap-6">
                   <div>
-                    <h3 className="text-xl font-bold text-blue-400 mb-4 flex items-center justify-center gap-2">
+                    <h3 className="text-xl font-bold text-blue-400 mb-2 md:mb-4 flex items-center justify-center gap-2">
                       <span>🎵</span> Festival Highlights
                     </h3>
                     <p className="text-gray-400 mb-4 text-sm">Generate timeline highlights for a festival, from your music</p>
