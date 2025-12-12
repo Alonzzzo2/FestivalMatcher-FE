@@ -4,11 +4,13 @@ import { FestivalMatchResponse } from '../types';
 interface ScoreCardProps {
     festival: FestivalMatchResponse;
     onVisitClashFinder?: () => void;
+    mode: 'liked' | 'playlist';
 }
 
 const ScoreCard: React.FC<ScoreCardProps> = ({
     festival,
-    onVisitClashFinder
+    onVisitClashFinder,
+    mode
 }) => {
     const formatDate = (isoDateString: string): string => {
         // Handle invalid or missing dates
@@ -32,6 +34,10 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
         }
     };
 
+    // Generate ranking message locally
+    const sourceText = mode === 'playlist' ? 'playlist' : 'liked songs';
+    const rankingMessage = `${festival.matchedTracksCount} potential tracks across ${festival.matchedArtistsCount} artists from your ${sourceText}, ${festival.tracksPerShow.toFixed(2)} per show.`;
+
     return (
         <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-gray-900">
             {/* Festival Header */}
@@ -51,9 +57,14 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                         </a>
                     )}
                 </div>
-                <p className="text-sm text-gray-600">
-                    📅 {formatDate(festival.festivalMetadata.startDate)}
-                    {festival.festivalMetadata.endDate && ` - ${formatDate(festival.festivalMetadata.endDate)}`}
+                <p className="text-sm text-gray-600 flex items-center gap-2 flex-wrap">
+                    <span>📅 {formatDate(festival.festivalMetadata.startDate)}
+                        {festival.festivalMetadata.endDate && ` - ${formatDate(festival.festivalMetadata.endDate)}`}</span>
+                    {new Date(festival.festivalMetadata.startDate) < new Date() ? (
+                        <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">Past Event</span>
+                    ) : (
+                        <span className="bg-green-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-sm">Upcoming</span>
+                    )}
                 </p>
             </div>
 
@@ -82,7 +93,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
 
             {/* Ranking Message */}
             <div className="bg-gray-700 border-l-4 border-green-500 p-4 mb-4">
-                <p className="text-sm text-gray-200 font-medium">✨ {festival.rankingMessage}</p>
+                <p className="text-sm text-gray-200 font-medium">✨ {rankingMessage}</p>
             </div>
 
             {/* Actions */}

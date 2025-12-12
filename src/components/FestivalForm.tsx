@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { FestivalMatchResponse } from '../types';
+import LoadingAnimation from './LoadingAnimation';
 
 interface FestivalFormProps {
   setClashfinderLink: (link: string) => void
@@ -201,8 +202,8 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
       if (contentType && contentType.includes('application/json')) {
         const data = await res.json();
 
-        // Check if it's the new response format (has matchedTracksCount and rankingMessage)
-        if (data.matchedTracksCount !== undefined && data.rankingMessage !== undefined) {
+        // Check if it's the new response format (has matchedTracksCount)
+        if (data.matchedTracksCount !== undefined) {
           const response = data as FestivalMatchResponse;
           clashfinderUrl = response.url;
           if (setFestivalStats) {
@@ -247,6 +248,10 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
     } finally {
       setLoading(false);
     }
+  }
+
+  if (loading) {
+    return <LoadingAnimation />;
   }
 
   return (

@@ -4,9 +4,10 @@ import ScoreCard from './ScoreCard';
 interface ResultProps {
   festival: FestivalMatchResponse | null;
   onReset: () => void;
+  mode: 'liked' | 'playlist';
 }
 
-export default function Result({ festival, onReset }: ResultProps) {
+export default function Result({ festival, onReset, mode }: ResultProps) {
   if (!festival) {
     return null;
   }
@@ -17,6 +18,7 @@ export default function Result({ festival, onReset }: ResultProps) {
         <ScoreCard
           festival={festival}
           onVisitClashFinder={() => window.open(festival.url, '_blank')}
+          mode={mode}
         />
       </div>
 

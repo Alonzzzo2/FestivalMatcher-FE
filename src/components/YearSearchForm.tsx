@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FestivalMatchResponse } from '../types';
+import LoadingAnimation from './LoadingAnimation';
 
 interface YearSearchFormProps {
     setTopMatches: (matches: FestivalMatchResponse[]) => void;
@@ -67,6 +68,10 @@ export default function YearSearchForm({ setTopMatches, mode, onPlaylistUrlChang
             setLoading(false);
         }
     };
+
+    if (loading) {
+        return <LoadingAnimation />;
+    }
 
     return (
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg">

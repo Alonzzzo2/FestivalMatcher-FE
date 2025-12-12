@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { FestivalMatchResponse } from '../types';
+import LoadingAnimation from './LoadingAnimation';
 
 interface DateRangeSearchFormProps {
     setTopMatches: (matches: FestivalMatchResponse[]) => void;
@@ -109,6 +110,43 @@ export default function DateRangeSearchForm({ setTopMatches, setDateRange, mode 
         }
     };
 
+    const handlePreset = (preset: 'month' | 'summer' | 'year') => {
+        const start = new Date();
+        const end = new Date();
+
+        if (preset === 'month') {
+            end.setDate(start.getDate() + 30);
+        } else if (preset === 'summer') {
+            // Logic for "This Summer" or "Next Summer"
+            // Assume Summer is June 1st to Aug 31st
+            const currentYear = start.getFullYear();
+            const summerStart = new Date(currentYear, 5, 1); // June 1
+            if (start > summerStart) {
+                // If we're past June 1st, check if we're past august. 
+                // Simple logic: if today is before Aug 31, start today or June 1, end Aug 31.
+                // If today is past Aug 31, do next year.
+                // Let's keep it simple: "Next 3 Months" instead of complex variable summer logic?
+                // User asked for "easy to use". "Next Summer" is great for festivals.
+                summerStart.setFullYear(currentYear + 1);
+            }
+            start.setTime(summerStart.getTime());
+            end.setTime(summerStart.getTime());
+            end.setMonth(7); // August
+            end.setDate(31);
+        } else if (preset === 'year') {
+            end.setFullYear(start.getFullYear() + 1);
+        }
+
+        const startStr = start.toISOString().split('T')[0];
+        setStartDate(startStr);
+        setEndDate(end.toISOString().split('T')[0]);
+        setIsEndDateEnabled(true);
+    };
+
+    if (loading) {
+        return <LoadingAnimation />;
+    }
+
     return (
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6 text-white">
@@ -116,27 +154,59 @@ export default function DateRangeSearchForm({ setTopMatches, setDateRange, mode 
                 {mode === 'liked' ? ' (Liked Songs)' : ' (Playlist)'}
             </h2>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label htmlFor="startDate" className="block text-gray-300 mb-2">Start Date</label>
+            {/* Quick Presets */}
+            <div className="mb-6 flex flex-wrap gap-2">
+                <span className="text-gray-400 text-sm py-1.5 mr-2">Quick Select:</span>
+                <button
+                    type="button"
+                    onClick={() => handlePreset('month')}
+                    className="bg-gray-700 hover:bg-gray-600 text-green-400 text-xs font-bold py-1.5 px-3 rounded-full border border-gray-600 transition-colors"
+                >
+                    +30 Days
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handlePreset('summer')}
+                    className="bg-gray-700 hover:bg-gray-600 text-yellow-400 text-xs font-bold py-1.5 px-3 rounded-full border border-gray-600 transition-colors"
+                >
+                    ☀️ Next Summer
+                </button>
+                <button
+                    type="button"
+                    onClick={() => handlePreset('year')}
+                    className="bg-gray-700 hover:bg-gray-600 text-blue-400 text-xs font-bold py-1.5 px-3 rounded-full border border-gray-600 transition-colors"
+                >
+                    📅 Next Year
+                </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="relative group">
+                        <label htmlFor="startDate" className="block text-green-400 text-sm font-bold mb-2 uppercase tracking-wide">
+                            Start Date
+                        </label>
                         <input
                             type="date"
                             id="startDate"
+                            min={new Date().toISOString().split('T')[0]}
                             value={startDate}
                             onChange={handleStartDateChange}
-                            className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-green-500"
+                            className="w-full px-4 py-3 bg-gray-900 text-white border-2 border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 [color-scheme:dark] cursor-pointer"
                             required
                         />
                     </div>
-                    <div>
-                        <label htmlFor="endDate" className="block text-gray-300 mb-2">End Date</label>
+                    <div className="relative group">
+                        <label htmlFor="endDate" className="block text-green-400 text-sm font-bold mb-2 uppercase tracking-wide">
+                            End Date
+                        </label>
                         <input
                             type="date"
                             id="endDate"
+                            min={startDate ? new Date(new Date(startDate).getTime() + 86400000).toISOString().split('T')[0] : undefined}
                             value={endDate}
                             onChange={(e) => setEndDate(e.target.value)}
-                            className={`w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-green-500 ${!isEndDateEnabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            className={`w-full px-4 py-3 bg-gray-900 text-white border-2 border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 [color-scheme:dark] ${!isEndDateEnabled ? 'opacity-50 cursor-not-allowed border-gray-800' : 'cursor-pointer'}`}
                             required
                             disabled={!isEndDateEnabled}
                         />

@@ -26,6 +26,6 @@ export interface FestivalMatchResponse {
     matchedArtistsCount: number;
     matchedTracksCount: number;
     tracksPerShow: number;
-    rankingMessage: string;
+    rankingMessage?: string;
     festivalMetadata: FestivalMetadata;
 }
