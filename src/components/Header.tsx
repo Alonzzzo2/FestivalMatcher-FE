@@ -9,7 +9,7 @@ export default function Header(props: HeaderProps) {
   const showLogout = isLoggedIn && onLogout;
 
   return (
-    <header className="bg-gradient-to-b from-gray-800 to-gray-900 border-b border-green-500/30 py-2 md:py-8">
+    <header className="bg-gradient-to-b from-gray-800 to-gray-900 border-b border-green-500/30 py-4 md:py-8">
       <div className="container mx-auto px-4">
         <div className={`relative flex items-center ${showLogout ? 'justify-between md:justify-center' : 'justify-center'}`}>
           <div className={`flex flex-col cursor-pointer group ${showLogout ? 'items-start md:items-center' : 'items-center'}`} onClick={typeof onHeadlineClick === 'function' ? onHeadlineClick : undefined}>
@@ -35,7 +35,7 @@ export default function Header(props: HeaderProps) {
         </div>
 
         {/* Subtitle */}
-        <p className={`text-gray-400 text-xs md:text-base max-w-xl mt-1 md:mt-2 ${showLogout ? 'text-left md:text-center md:mx-auto' : 'text-center mx-auto'}`}>
+        <p className={`text-gray-400 text-xs md:text-base max-w-xl mt-3 md:mt-4 ${showLogout ? 'text-left md:text-center md:mx-auto' : 'text-center mx-auto'}`}>
           Find your perfect festival lineup based on your favorite music
         </p>
       </div>
