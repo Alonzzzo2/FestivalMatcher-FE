@@ -147,17 +147,17 @@ function App() {
     <ErrorBoundary>
       <div className="flex flex-col min-h-screen bg-gray-900">
         <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} onHeadlineClick={() => { setEntryMode('choose'); setTopMatches(null); setClashfinderLink(null); }} />
-        <main className="flex-grow container mx-auto px-4 py-4 md:py-8">
+        <main className="flex-grow container mx-auto px-4 py-2 md:py-8">
           <div className={topMatches ? "max-w-5xl mx-auto" : "max-w-md mx-auto"}>
             {entryMode === 'choose' ? (
-              <div className="bg-gray-800 p-6 md:p-8 rounded-lg shadow-lg text-center">
+              <div className="bg-gray-800 p-5 md:p-8 rounded-lg shadow-lg text-center">
                 <div className="flex flex-col gap-4 md:gap-6">
                   <div>
-                    <h3 className="text-xl font-bold text-blue-400 mb-2 md:mb-4 flex items-center justify-center gap-2">
+                    <h3 className="text-lg md:text-xl font-bold text-blue-400 mb-2 md:mb-4 flex items-center justify-center gap-2">
                       <span>🎵</span> Festival Highlights
                     </h3>
-                    <p className="text-gray-400 mb-4 text-sm">Generate timeline highlights for a festival, from your music</p>
-                    <div className="flex flex-col gap-3">
+                    <p className="text-gray-400 mb-3 md:mb-4 text-xs md:text-sm">Generate timeline highlights for a festival, from your music</p>
+                    <div className="flex flex-col gap-3 md:gap-3">
                       {enableLiked && (
                         <button
                           className="w-full bg-green-500 hover:bg-green-600 text-white text-base font-bold py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
@@ -174,12 +174,12 @@ function App() {
                       </button>
                     </div>
                   </div>
-                  <div className="border-t border-gray-700 my-6 pt-6">
-                    <h3 className="text-xl font-bold text-teal-400 mb-4 flex items-center justify-center gap-2">
+                  <div className="border-t border-gray-700 my-4 md:my-6 pt-4 md:pt-6">
+                    <h3 className="text-lg md:text-xl font-bold text-teal-400 mb-2 md:mb-4 flex items-center justify-center gap-2">
                       <span>🗓️</span> Festivals Discovery
                     </h3>
-                    <p className="text-gray-400 mb-4 text-sm">Find festivals matching your music, by date range</p>
-                    <div className="flex flex-col gap-3">
+                    <p className="text-gray-400 mb-3 md:mb-4 text-xs md:text-sm">Find festivals matching your music, by date range</p>
+                    <div className="flex flex-col gap-3 md:gap-3">
                       {enableLiked && (
                         <button
                           className="w-full bg-purple-500 hover:bg-purple-600 text-white text-base font-bold py-3 px-4 rounded-lg transition-all duration-200 hover:scale-105 shadow-md"
