@@ -8,8 +8,8 @@ export default function Footer({ onHeartClick }: FooterProps) {
   const [, setClickCount] = useState(0);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   return (
-    <footer className="bg-gray-800 border-t border-gray-700 py-6 mt-8">
-      <div className="container mx-auto px-4 text-center text-gray-400 text-sm flex flex-col items-center gap-4">
+    <footer className="bg-gray-800 border-t border-gray-700 py-4 mt-4">
+      <div className="container mx-auto px-4 text-center text-gray-400 text-sm flex flex-col items-center gap-3">
         <p>
           Made with <span
             onClick={() => {
@@ -37,9 +37,18 @@ export default function Footer({ onHeartClick }: FooterProps) {
           href="https://www.buymeacoffee.com/festivalmatcher"
           target="_blank"
           rel="noopener noreferrer"
-          className="inline-flex items-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold transition-transform hover:scale-105"
+          className="inline-flex items-center gap-2 bg-white hover:bg-gray-100 text-[#F40009] px-4 py-2 rounded-lg font-bold transition-transform hover:scale-105 shadow-lg"
         >
-          🥤 Buy me a coke
+          <img 
+            src="/coke.png" 
+            alt="Coke" 
+            className="w-5 h-5 object-contain"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none';
+              e.currentTarget.parentElement!.innerHTML = '🥤 Buy me a Coke';
+            }}
+          />
+          Buy me a Coke
         </a>
       </div>
     </footer>
