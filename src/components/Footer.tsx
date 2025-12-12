@@ -5,7 +5,7 @@ interface FooterProps {
 }
 
 export default function Footer({ onHeartClick }: FooterProps) {
-  const [clickCount, setClickCount] = useState(0);
+  const [, setClickCount] = useState(0);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   return (
     <footer className="bg-gray-800 border-t border-gray-700 py-6 mt-8">
