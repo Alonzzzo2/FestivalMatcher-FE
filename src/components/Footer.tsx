@@ -8,8 +8,8 @@ export default function Footer({ onHeartClick }: FooterProps) {
   const [, setClickCount] = useState(0);
   const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   return (
-    <footer className="bg-gray-800 border-t border-gray-700 py-4 mt-4">
-      <div className="container mx-auto px-4 text-center text-gray-400 text-sm flex flex-col items-center gap-3">
+    <footer className="bg-gray-800 border-t border-gray-700 py-8 mt-4 pb-12 md:pb-8">
+      <div className="container mx-auto px-4 text-center text-gray-400 text-sm flex flex-col items-center gap-4">
         <p>
           Made with <span
             onClick={() => {
