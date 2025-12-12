@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 interface DateRangePickerProps {
     startDate: string;
@@ -61,8 +61,6 @@ export default function DateRangePicker({ startDate, endDate, onChange }: DateRa
 
     // Helper to determine styling for each day
     const getDayClasses = (day: number) => {
-        const dateStr = new Date(year, month, day - new Date().getTimezoneOffset() / 1440).toISOString().split('T')[0];
-
         // Re-construct date properly for comparison to avoid timezone shifts
         const currentLoopDate = new Date(year, month, day);
         currentLoopDate.setHours(0, 0, 0, 0);

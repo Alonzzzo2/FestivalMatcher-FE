@@ -5,6 +5,8 @@ import Login from './components/Login'
 import FestivalForm from './components/FestivalForm'
 import Result from './components/Result'
 import FestivalDiscoveryForm from './components/FestivalDiscoveryForm'
+import YearSearchForm from './components/YearSearchForm'
+import DateRangeSearchForm from './components/DateRangeSearchForm'
 import TopMatchesResult from './components/TopMatchesResult'
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { FestivalMatchResponse } from './types';
@@ -198,6 +200,7 @@ function App() {
                     setClashfinderLink(null)
                     setFestivalStats(null)
                   }}
+                  mode="liked"
                 />
               ) : (
                 <FestivalForm
@@ -216,6 +219,7 @@ function App() {
                     setClashfinderLink(null)
                     setFestivalStats(null)
                   }}
+                  mode="playlist"
                 />
               ) : (
                 <FestivalForm
