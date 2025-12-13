@@ -10,6 +10,14 @@ import DateRangeSearchForm from './components/DateRangeSearchForm'
 import TopMatchesResult from './components/TopMatchesResult'
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { FestivalMatchResponse } from './types';
+import { trackLogin, trackLikedSongsToggle } from './utils/analytics';
+
+// Declare gtag for TypeScript
+declare global {
+  interface Window {
+    gtag: (...args: unknown[]) => void;
+  }
+}
 
 const getTitle = (range: { start: string, end: string } | null, fallback: string) => {
   if (!range) return fallback;
@@ -22,6 +30,21 @@ const getTitle = (range: { start: string, end: string } | null, fallback: string
   }
   
   return `Top Festivals (${new Date(range.start).toLocaleDateString()} - ${new Date(range.end).toLocaleDateString()})`;
+};
+
+const getPageTitle = (entryMode: string): string => {
+  const pageMapping: Record<string, string> = {
+    'choose': 'Home',
+    'login': 'Match Liked Songs to Festival',
+    'playlist': 'Match Playlist to Festival',
+    'discovery-liked': 'Find Festivals by Liked Songs',
+    'discovery-playlist': 'Find Festivals by Playlist',
+    'year-liked': 'Top Festivals by Year (Liked Songs)',
+    'year-playlist': 'Top Festivals by Year (Playlist)',
+    'date-range-liked': 'Top Festivals by Date Range (Liked Songs)',
+    'date-range-playlist': 'Top Festivals by Date Range (Playlist)'
+  };
+  return pageMapping[entryMode] || entryMode;
 };
 
 function App() {
@@ -42,10 +65,15 @@ function App() {
     if (isLoggedIn) {
       setEnableLiked(true);
       localStorage.setItem('enableLiked', 'true');
+      trackLogin();
     }
   }, [isLoggedIn]);
 
-  const toggleLiked = () => setEnableLiked(!enableLiked);
+  const toggleLiked = () => {
+    const newState = !enableLiked;
+    setEnableLiked(newState);
+    trackLikedSongsToggle(newState);
+  };
 
   const [festivals, setFestivals] = useState<Array<{
     name: string;
@@ -119,6 +147,8 @@ function App() {
   useEffect(() => {
     checkLoginStatus()
     fetchFestivals()
+    // Initialize history state on mount
+    window.history.replaceState({ entryMode: 'choose' }, getPageTitle('choose'), window.location.pathname);
   }, [])
 
   // Recheck login status when window comes back into focus
@@ -129,6 +159,37 @@ function App() {
 
     window.addEventListener('focus', handleFocus)
     return () => window.removeEventListener('focus', handleFocus)
+  }, [])
+
+  // Track page views for SPA navigation
+  useEffect(() => {
+    if (window.gtag) {
+      window.gtag('pageview', {
+        page_path: '/' + entryMode,
+        page_title: getPageTitle(entryMode)
+      });
+    }
+  }, [entryMode])
+
+  // Manage browser history for SPA navigation
+  useEffect(() => {
+    // Push state to history when entryMode changes
+    window.history.pushState({ entryMode }, getPageTitle(entryMode), window.location.pathname);
+  }, [entryMode])
+
+  // Handle browser back button
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      if (event.state && event.state.entryMode) {
+        setEntryMode(event.state.entryMode);
+      } else {
+        // If no state, reset to home
+        setEntryMode('choose');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
   }, [])
 
   if (isLoading) {

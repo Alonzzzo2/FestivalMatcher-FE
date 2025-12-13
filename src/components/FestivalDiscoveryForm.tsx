@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FestivalMatchResponse } from '../types';
 import LoadingAnimation from './LoadingAnimation';
+import { trackDiscoverySearch, trackError } from '../utils/analytics';
 
 interface FestivalDiscoveryFormProps {
     setTopMatches: (matches: FestivalMatchResponse[]) => void;
@@ -158,6 +159,8 @@ export default function FestivalDiscoveryForm({ setTopMatches, setDateRange, mod
                 festivalMetadata: item.festival || item.festivalMetadata
             }));
 
+            trackDiscoverySearch(searchMode, mode, mappedData.length);
+
             if (setDateRange) {
                 if (searchMode === 'dateRange') {
                     setDateRange({ start: startDate, end: endDate });
@@ -173,6 +176,7 @@ export default function FestivalDiscoveryForm({ setTopMatches, setDateRange, mod
         } catch (err) {
             const message = err instanceof Error ? err.message : 'Error fetching festival matches. Please try again.';
             setError(message);
+            trackError(message, 'festival_discovery_form');
         } finally {
             setLoading(false);
         }
