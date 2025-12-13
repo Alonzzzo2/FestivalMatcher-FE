@@ -1,5 +1,6 @@
 import React from 'react';
 import { FestivalMatchResponse } from '../types';
+import { trackClashfinderClick } from '../utils/analytics';
 
 interface ScoreCardProps {
     festival: FestivalMatchResponse;
@@ -99,7 +100,10 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
             {/* Actions */}
             <div className="flex gap-2">
                 <button
-                    onClick={onVisitClashFinder}
+                    onClick={() => {
+                        trackClashfinderClick(festival.festivalMetadata.name, festival.festivalMetadata.id);
+                        onVisitClashFinder?.();
+                    }}
                     className="flex-1 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition-colors text-center font-semibold"
                 >
                     🎪 View ClashFinder Schedule

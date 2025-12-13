@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import { FestivalMatchResponse } from '../types';
 import ScoreCard from './ScoreCard';
+import { trackSortChange, trackLoadMore, trackFilterChange } from '../utils/analytics';
 
 interface TopMatchesResultProps {
     matches: FestivalMatchResponse[];
@@ -55,6 +56,7 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
     // Save sort preference to localStorage whenever it changes
     useEffect(() => {
         saveSortPreference(mode, sortBy);
+        trackSortChange(sortBy, mode);
     }, [mode, sortBy]);
 
     // Pagination state
@@ -121,6 +123,7 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
 
     const handleLoadMore = () => {
         setDisplayCount(prev => prev + ITEMS_PER_PAGE);
+        trackLoadMore(displayCount + ITEMS_PER_PAGE, sortedMatches.length);
     };
 
     // Calculate counts for each filter category
@@ -173,7 +176,11 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                     <select
                         id="sort-select"
                         value={sortBy}
-                        onChange={(e) => setSortBy(e.target.value as SortOption)}
+                        onChange={(e) => {
+                            const newSort = e.target.value as SortOption;
+                            setSortBy(newSort);
+                            trackSortChange(newSort, mode);
+                        }}
                         className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-green-500"
                     >
                         <option value="rank">🏆 Average Matched Tracks Per Show</option>
@@ -189,7 +196,10 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                     </label>
                     <div className="flex bg-gray-700 rounded p-1 border border-gray-600">
                         <button
-                            onClick={() => setFilterMode('all')}
+                            onClick={() => {
+                                setFilterMode('all');
+                                trackFilterChange('date_filter', 'all', mode);
+                            }}
                             className={`flex-1 py-1 px-3 rounded text-sm font-medium transition-colors ${filterMode === 'all'
                                 ? 'bg-gray-600 text-white shadow-sm'
                                 : 'text-gray-400 hover:text-gray-200'
@@ -198,7 +208,10 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                             All ({counts.all})
                         </button>
                         <button
-                            onClick={() => setFilterMode('upcoming')}
+                            onClick={() => {
+                                setFilterMode('upcoming');
+                                trackFilterChange('date_filter', 'upcoming', mode);
+                            }}
                             className={`flex-1 py-1 px-3 rounded text-sm font-medium transition-colors ${filterMode === 'upcoming'
                                 ? 'bg-green-600 text-white shadow-sm'
                                 : 'text-gray-400 hover:text-gray-200'
@@ -207,7 +220,10 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                             Upcoming ({counts.upcoming})
                         </button>
                         <button
-                            onClick={() => setFilterMode('past')}
+                            onClick={() => {
+                                setFilterMode('past');
+                                trackFilterChange('date_filter', 'past', mode);
+                            }}
                             className={`flex-1 py-1 px-3 rounded text-sm font-medium transition-colors ${filterMode === 'past'
                                 ? 'bg-red-600 text-white shadow-sm'
                                 : 'text-gray-400 hover:text-gray-200'

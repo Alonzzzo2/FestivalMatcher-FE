@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { FestivalMatchResponse } from '../types';
 import LoadingAnimation from './LoadingAnimation';
+import { trackFestivalMatch, trackFestivalMatchResult, trackError } from '../utils/analytics';
 
 interface FestivalFormProps {
   setClashfinderLink: (link: string) => void
@@ -197,6 +198,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
 
       const contentType = res.headers.get('content-type');
       let clashfinderUrl: string | null = null;
+      let latestStats: FestivalMatchResponse | null = null;
 
       // Handle both JSON and plain text responses
       if (contentType && contentType.includes('application/json')) {
@@ -206,6 +208,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
         if (data.matchedTracksCount !== undefined) {
           const response = data as FestivalMatchResponse;
           clashfinderUrl = response.url;
+          latestStats = response;
           if (setFestivalStats) {
             setFestivalStats(response);
           }
@@ -223,6 +226,22 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
       }
 
       if (clashfinderUrl && clashfinderUrl.startsWith('http')) {
+        // Track festival match
+        const selectedFestival = festivals.find(f => f.id === festivalIdentifier);
+        if (selectedFestival) {
+          trackFestivalMatch(selectedFestival.name, festivalIdentifier, mode || 'liked');
+        }
+        
+        // Track result
+        if (latestStats) {
+          const selectedFestivalName = selectedFestival?.name || festivalIdentifier;
+          trackFestivalMatchResult(
+            selectedFestivalName,
+            latestStats.matchedTracksCount,
+            latestStats.matchedArtistsCount
+          );
+        }
+        
         setClashfinderLink(clashfinderUrl);
       } else {
         setError('No valid Clashfinder URL returned');
@@ -245,6 +264,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
       }
 
       setError(message);
+      trackError(message, 'festival_form_submission');
     } finally {
       setLoading(false);
     }

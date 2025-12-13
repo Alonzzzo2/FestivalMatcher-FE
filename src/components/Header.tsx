@@ -1,3 +1,5 @@
+import { trackLogout } from '../utils/analytics';
+
 interface HeaderProps {
   isLoggedIn?: boolean
   onLogout?: () => void
@@ -24,7 +26,10 @@ export default function Header(props: HeaderProps) {
           {showLogout && (
             <div className="md:absolute md:right-0 md:top-1/2 md:-translate-y-1/2 pl-2 md:pl-0">
               <button
-                onClick={onLogout}
+                onClick={() => {
+                  trackLogout();
+                  onLogout?.();
+                }}
                 aria-label="Logout"
                 className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold py-1.5 px-3 rounded shadow-lg transition-all duration-200 hover:shadow-red-500/50 whitespace-nowrap"
               >

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FestivalMatchResponse } from '../types';
 import LoadingAnimation from './LoadingAnimation';
+import { trackYearSearch, trackError } from '../utils/analytics';
 
 interface YearSearchFormProps {
     setTopMatches: (matches: FestivalMatchResponse[]) => void;
@@ -54,6 +55,7 @@ export default function YearSearchForm({ setTopMatches, mode, onPlaylistUrlChang
 
             // API returns array of FestivalMatchResponse
             if (Array.isArray(data)) {
+                trackYearSearch(selectedYear, mode, data.length);
                 setTopMatches(data);
             } else {
                 throw new Error('Invalid response format');
@@ -63,6 +65,7 @@ export default function YearSearchForm({ setTopMatches, mode, onPlaylistUrlChang
                 err instanceof Error
                     ? err.message
                     : 'Error fetching festival matches. Please try again.';
+            trackError(message, 'year_search_form');
             setError(message);
         } finally {
             setLoading(false);

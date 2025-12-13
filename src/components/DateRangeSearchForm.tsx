@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { FestivalMatchResponse } from '../types';
 import LoadingAnimation from './LoadingAnimation';
+import { trackDateRangeSearch, trackError } from '../utils/analytics';
 
 interface DateRangeSearchFormProps {
     setTopMatches: (matches: FestivalMatchResponse[]) => void;
@@ -98,13 +99,16 @@ export default function DateRangeSearchForm({ setTopMatches, setDateRange, mode 
                 festivalMetadata: item.festival || item.festivalMetadata // Handle both
             }));
 
+            trackDateRangeSearch(startDate, endDate, mode, mappedData.length);
             setTopMatches(mappedData);
             if (setDateRange) {
                 setDateRange({ start: startDate, end: endDate });
             }
 
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'An unknown error occurred');
+            const message = err instanceof Error ? err.message : 'An unknown error occurred';
+            setError(message);
+            trackError(message, 'date_range_search_form');
         } finally {
             setLoading(false);
         }
