@@ -127,6 +127,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
     setSearch(f.name);
     setShowDropdown(false);
     setActiveIndex(-1);
+    setError(null);
   };
 
   // Scroll active item into view
@@ -286,7 +287,10 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
               id="playlist-url"
               type="text"
               value={playlistUrl}
-              onChange={e => setPlaylistUrl(e.target.value)}
+              onChange={e => {
+                setPlaylistUrl(e.target.value);
+                setError(null);
+              }}
               placeholder="Paste a public Spotify playlist link..."
               className="w-full px-4 py-2 bg-gray-700 text-white border border-gray-600 rounded focus:outline-none focus:border-green-500 mb-2"
               disabled={loading}
@@ -328,6 +332,7 @@ export default function FestivalForm({ setClashfinderLink, setFestivalStats, mod
             }, 200)}
             onChange={(e) => {
               setSearch(e.target.value);
+              setError(null);
               // When typing, we are no longer "selected" unless we happen to type the exact name,
               // but usually we reset selection state
               if (selectedId) {

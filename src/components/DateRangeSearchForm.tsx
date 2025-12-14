@@ -82,7 +82,7 @@ export default function DateRangeSearchForm({ setTopMatches, setDateRange, mode 
 
             // Check if response is empty
             if (!Array.isArray(data) || data.length === 0) {
-                throw new Error('No festivals found within this date range matching your music taste.');
+                throw new Error('No festivals found within these dates matching your music taste.');
             }
 
             // Map response to expected type if needed
@@ -154,7 +154,7 @@ export default function DateRangeSearchForm({ setTopMatches, setDateRange, mode 
     return (
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-6 text-white">
-                Find Festivals by Date Range
+                Find Festivals by Dates
                 {mode === 'liked' ? ' (Liked Songs)' : ' (Playlist)'}
             </h2>
 
@@ -193,7 +193,6 @@ export default function DateRangeSearchForm({ setTopMatches, setDateRange, mode 
                         <input
                             type="date"
                             id="startDate"
-                            min={new Date().toISOString().split('T')[0]}
                             value={startDate}
                             onChange={handleStartDateChange}
                             className="w-full px-4 py-3 bg-gray-900 text-white border-2 border-gray-700 rounded-lg focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-all duration-200 [color-scheme:dark] cursor-pointer"

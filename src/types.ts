@@ -19,6 +19,17 @@ export interface FestivalMetadata {
     numActs: number;
     numPerformingArtists?: number; // Optional as it might be missing in some responses
     url?: string; // Optional as it might be at root
+    playlistMetadata?: PlaylistMetadata; // Present for playlist-based results
+}
+
+export interface PlaylistMetadata {
+    playlistId?: string;
+    playlistName?: string;
+    playlistUrl?: string;
+    playlistImageUrl?: string;
+    totalTracks?: number;
+    owner?: string;
+    description?: string;
 }
 
 export interface FestivalMatchResponse {

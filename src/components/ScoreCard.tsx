@@ -6,12 +6,14 @@ interface ScoreCardProps {
     festival: FestivalMatchResponse;
     onVisitClashFinder?: () => void;
     mode: 'liked' | 'playlist';
+    showPlaylistInfo?: boolean; // allows parent to hide per-card playlist block when summarizing elsewhere
 }
 
 const ScoreCard: React.FC<ScoreCardProps> = ({
     festival,
     onVisitClashFinder,
-    mode
+    mode,
+    showPlaylistInfo = true
 }) => {
     const formatDate = (isoDateString: string): string => {
         // Handle invalid or missing dates
@@ -39,10 +41,12 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     const sourceText = mode === 'playlist' ? 'playlist' : 'liked songs';
     const rankingMessage = `${festival.matchedTracksCount} potential tracks across ${festival.matchedArtistsCount} artists from your ${sourceText}, ${festival.tracksPerShow.toFixed(2)} per show.`;
 
+    const playlist = festival.festivalMetadata.playlistMetadata;
+
     return (
         <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow text-gray-900">
             {/* Festival Header */}
-            <div className="mb-4">
+            <div className="mb-5">
                 <div className="flex items-center gap-2">
                     <h2 className="text-2xl font-bold text-gray-900">{festival.festivalMetadata.name}</h2>
                     {festival.festivalMetadata.url && (
@@ -58,7 +62,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                         </a>
                     )}
                 </div>
-                <p className="text-sm text-gray-600 flex items-center gap-2 flex-wrap">
+                <p className="text-sm text-gray-600 flex items-center gap-2 flex-wrap mt-1.5">
                     <span>📅 {formatDate(festival.festivalMetadata.startDate)}
                         {festival.festivalMetadata.endDate && ` - ${formatDate(festival.festivalMetadata.endDate)}`}</span>
                     {new Date(festival.festivalMetadata.startDate) < new Date() ? (
@@ -68,6 +72,61 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                     )}
                 </p>
             </div>
+
+            {/* Playlist metadata (playlist mode only, hideable) */}
+            {showPlaylistInfo && mode === 'playlist' && playlist && (
+                <div className="bg-gray-100 border border-gray-200 rounded-lg p-4 mb-4 flex items-center gap-4">
+                    {playlist.playlistImageUrl ? (
+                        <img
+                            src={playlist.playlistImageUrl}
+                            alt={playlist.playlistName || 'Playlist cover'}
+                            className="w-14 h-14 rounded shadow-sm object-cover"
+                        />
+                    ) : (
+                        <div className="w-14 h-14 rounded bg-gray-300 text-gray-600 flex items-center justify-center font-bold shadow-sm">
+                            ♪
+                        </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                        <p className="text-xs uppercase tracking-wide text-gray-500 font-semibold">Playlist</p>
+                        <p className="text-lg font-bold text-gray-900 truncate" title={playlist.playlistName}>{playlist.playlistName || 'Playlist'}</p>
+                        <p className="text-sm text-gray-600">{playlist.totalTracks ?? '—'} tracks</p>
+                        {playlist.owner && (
+                            <p className="text-xs text-gray-500">by {playlist.owner}</p>
+                        )}
+                        {playlist.description && (
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2" title={playlist.description}>{playlist.description}</p>
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        {playlist.playlistUrl && (
+                            <button
+                                type="button"
+                                className="p-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors text-sm"
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    navigator.clipboard?.writeText(playlist.playlistUrl ?? '');
+                                }}
+                                aria-label="Copy playlist link"
+                                title="Copy playlist link"
+                            >
+                                <span aria-hidden="true">📋</span>
+                            </button>
+                        )}
+                        {playlist.playlistUrl && (
+                            <a
+                                href={playlist.playlistUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-2 bg-green-500 text-white rounded font-semibold hover:bg-green-600 transition-colors text-sm whitespace-nowrap text-center"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                Open
+                            </a>
+                        )}
+                    </div>
+                </div>
+            )}
 
             {/* Match Statistics */}
             <div className="bg-gradient-to-br from-gray-700 to-gray-800 text-white rounded-lg p-6 mb-4 border border-gray-600">

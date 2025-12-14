@@ -53,6 +53,8 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
     // Initialize sortBy from localStorage based on mode
     const [sortBy, setSortBy] = useState<SortOption>(() => loadSortPreference(mode));
 
+    const playlistMetadata = mode === 'playlist' ? matches[0]?.festivalMetadata?.playlistMetadata : undefined;
+
     // Save sort preference to localStorage whenever it changes
     useEffect(() => {
         saveSortPreference(mode, sortBy);
@@ -166,6 +168,54 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                 </p>
             </div>
 
+            {playlistMetadata && (
+                <div className="mb-6 bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-xl flex items-center gap-4">
+                    {playlistMetadata.playlistImageUrl ? (
+                        <img
+                            src={playlistMetadata.playlistImageUrl}
+                            alt={playlistMetadata.playlistName || 'Playlist cover'}
+                            className="w-14 h-14 rounded object-cover shadow"
+                        />
+                    ) : (
+                        <div className="w-14 h-14 rounded bg-gray-700 text-gray-300 flex items-center justify-center font-bold">♪</div>
+                    )}
+                    <div className="flex-1 min-w-0 text-left">
+                        <p className="text-xs uppercase tracking-wide text-gray-400 font-semibold">Playlist</p>
+                        <p className="text-lg font-bold text-white truncate" title={playlistMetadata.playlistName}>{playlistMetadata.playlistName || 'Playlist'}</p>
+                        <p className="text-sm text-gray-300">{playlistMetadata.totalTracks ?? '—'} tracks</p>
+                        {playlistMetadata.owner && (
+                            <p className="text-xs text-gray-400">by {playlistMetadata.owner}</p>
+                        )}
+                        {playlistMetadata.description && (
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-2" title={playlistMetadata.description}>{playlistMetadata.description}</p>
+                        )}
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        {playlistMetadata.playlistUrl && (
+                            <button
+                                type="button"
+                                className="p-2 bg-gray-700 text-white rounded hover:bg-gray-800 transition-colors text-sm"
+                                onClick={() => navigator.clipboard?.writeText(playlistMetadata.playlistUrl ?? '')}
+                                aria-label="Copy playlist link"
+                                title="Copy playlist link"
+                            >
+                                <span aria-hidden="true">📋</span>
+                            </button>
+                        )}
+                        {playlistMetadata.playlistUrl && (
+                            <a
+                                href={playlistMetadata.playlistUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-2 bg-green-500 text-white rounded font-semibold hover:bg-green-600 transition-colors text-sm whitespace-nowrap text-center"
+                            >
+                                Open
+                            </a>
+                        )}
+                    </div>
+                </div>
+            )}
+
             {/* Controls Section */}
             <div className="mb-6 bg-gray-800 p-4 rounded-lg flex flex-col md:flex-row gap-4">
                 {/* Sort Control */}
@@ -251,6 +301,7 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                                 festival={festival}
                                 onVisitClashFinder={() => window.open(festival.url, '_blank')}
                                 mode={mode}
+                                showPlaylistInfo={!playlistMetadata}
                             />
                         </div>
                     </div>

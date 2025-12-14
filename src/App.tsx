@@ -19,6 +19,18 @@ declare global {
   }
 }
 
+// Format YYYY-MM-DD to "Mon 3rd 2025"
+const formatPrettyDate = (dateStr: string): string => {
+  const d = new Date(dateStr);
+  const month = d.toLocaleString(undefined, { month: 'short' });
+  const day = d.getDate();
+  const year = d.getFullYear();
+  const j = day % 10;
+  const k = day % 100;
+  const suffix = (j === 1 && k !== 11) ? 'st' : (j === 2 && k !== 12) ? 'nd' : (j === 3 && k !== 13) ? 'rd' : 'th';
+  return `${month} ${day}${suffix} ${year}`;
+};
+
 const getTitle = (range: { start: string, end: string } | null, fallback: string) => {
   if (!range) return fallback;
   
@@ -29,7 +41,7 @@ const getTitle = (range: { start: string, end: string } | null, fallback: string
       return `Top Festivals for ${yearMatch[1]}`;
   }
   
-  return `Top Festivals (${new Date(range.start).toLocaleDateString()} - ${new Date(range.end).toLocaleDateString()})`;
+  return `Top Festivals (${formatPrettyDate(range.start)} - ${formatPrettyDate(range.end)})`;
 };
 
 const getPageTitle = (entryMode: string): string => {
@@ -41,8 +53,8 @@ const getPageTitle = (entryMode: string): string => {
     'discovery-playlist': 'Find Festivals by Playlist',
     'year-liked': 'Top Festivals by Year (Liked Songs)',
     'year-playlist': 'Top Festivals by Year (Playlist)',
-    'date-range-liked': 'Top Festivals by Date Range (Liked Songs)',
-    'date-range-playlist': 'Top Festivals by Date Range (Playlist)'
+    'date-range-liked': 'Top Festivals by Dates (Liked Songs)',
+    'date-range-playlist': 'Top Festivals by Dates (Playlist)'
   };
   return pageMapping[entryMode] || entryMode;
 };
@@ -181,10 +193,17 @@ function App() {
   useEffect(() => {
     const handlePopState = (event: PopStateEvent) => {
       if (event.state && event.state.entryMode) {
-        setEntryMode(event.state.entryMode);
+        const nextMode = event.state.entryMode as typeof entryMode;
+        setEntryMode(nextMode);
+        if (nextMode === 'choose') {
+          setTopMatches(null);
+          setClashfinderLink(null);
+        }
       } else {
         // If no state, reset to home
         setEntryMode('choose');
+        setTopMatches(null);
+        setClashfinderLink(null);
       }
     };
 
@@ -207,9 +226,9 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="flex flex-col min-h-[100dvh] bg-gray-900">
-        <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} onHeadlineClick={() => { setEntryMode('choose'); setTopMatches(null); setClashfinderLink(null); }} />
+        <Header isLoggedIn={isLoggedIn && enableLiked} onLogout={handleLogout} onHeadlineClick={() => { setEntryMode('choose'); setTopMatches(null); setClashfinderLink(null); }} />
         <main className="flex-grow container mx-auto px-4 py-6 md:py-8">
-          <div className={topMatches ? "max-w-5xl mx-auto" : "max-w-md mx-auto"}>
+          <div className={(topMatches || clashfinderLink) ? "max-w-5xl mx-auto" : "max-w-md mx-auto"}>
             {entryMode === 'choose' ? (
               <div className="bg-gray-800 p-5 md:p-8 rounded-lg shadow-lg text-center">
                 <div className="flex flex-col gap-6 md:gap-8">
@@ -239,7 +258,7 @@ function App() {
                     <h3 className="text-lg md:text-xl font-bold text-teal-400 mb-3 md:mb-4 flex items-center justify-center gap-2">
                       <span>🗓️</span> Festivals Discovery
                     </h3>
-                    <p className="text-gray-400 mb-4 md:mb-6 text-xs md:text-sm">Find festivals matching your music, by date range</p>
+                    <p className="text-gray-400 mb-4 md:mb-6 text-xs md:text-sm">Find festivals matching your music, by dates</p>
                     <div className="flex flex-col gap-3 md:gap-4">
                       {enableLiked && (
                         <button
@@ -379,7 +398,7 @@ function App() {
               ) : topMatches ? (
                 <TopMatchesResult
                   matches={topMatches}
-                  title={getTitle(dateRange, "Top Festivals by Date Range")}
+                  title={getTitle(dateRange, "Top Festivals by Dates")}
                   onReset={() => { setTopMatches(null); setDateRange(null); }}
                   mode="liked"
                 />
@@ -394,7 +413,7 @@ function App() {
               topMatches ? (
                 <TopMatchesResult
                   matches={topMatches}
-                  title={getTitle(dateRange, "Top Festivals by Date Range")}
+                  title={getTitle(dateRange, "Top Festivals by Dates")}
                   onReset={() => { setTopMatches(null); setDateRange(null); }}
                   mode="playlist"
                 />

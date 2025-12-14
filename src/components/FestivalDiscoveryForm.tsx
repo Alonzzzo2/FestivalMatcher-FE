@@ -212,7 +212,7 @@ export default function FestivalDiscoveryForm({ setTopMatches, setDateRange, mod
                             : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                     }`}
                 >
-                    🗓️ By Date Range
+                    🗓️ By Dates
                 </button>
             </div>
 
@@ -278,7 +278,6 @@ export default function FestivalDiscoveryForm({ setTopMatches, setDateRange, mod
                                 <input
                                     type="date"
                                     id="startDate"
-                                    min={new Date().toISOString().split('T')[0]}
                                     value={startDate}
                                     onChange={handleStartDateChange}
                                     className="w-full px-4 py-3 bg-gray-900 text-white border-2 border-gray-700 rounded-lg focus:outline-none focus:border-teal-500 focus:ring-1 focus:ring-teal-500 transition-all duration-200 [color-scheme:dark] cursor-pointer"
