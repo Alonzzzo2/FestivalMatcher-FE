@@ -50,6 +50,12 @@ const saveSortPreference = (mode: 'liked' | 'playlist', sortBy: SortOption) => {
 };
 
 export default function TopMatchesResult({ matches, onReset, year, title, mode }: TopMatchesResultProps) {
+    const decodeHtmlEntities = (text: string): string => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    };
+
     // Initialize sortBy from localStorage based on mode
     const [sortBy, setSortBy] = useState<SortOption>(() => loadSortPreference(mode));
 
@@ -188,7 +194,7 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                             <p className="text-xs text-gray-400">by {playlistMetadata.owner}</p>
                         )}
                         {playlistMetadata.description && (
-                            <p className="text-xs text-gray-400 mt-1 line-clamp-2" title={playlistMetadata.description}>{playlistMetadata.description}</p>
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-2" title={decodeHtmlEntities(playlistMetadata.description)}>{decodeHtmlEntities(playlistMetadata.description)}</p>
                         )}
                     </div>
                     <div className="flex flex-col gap-2">

@@ -15,6 +15,12 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     mode,
     showPlaylistInfo = true
 }) => {
+    const decodeHtmlEntities = (text: string): string => {
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = text;
+        return textarea.value;
+    };
+
     const formatDate = (isoDateString: string): string => {
         // Handle invalid or missing dates
         if (!isoDateString) {
@@ -95,7 +101,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                             <p className="text-xs text-gray-500">by {playlist.owner}</p>
                         )}
                         {playlist.description && (
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2" title={playlist.description}>{playlist.description}</p>
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2" title={decodeHtmlEntities(playlist.description)}>{decodeHtmlEntities(playlist.description)}</p>
                         )}
                     </div>
                     <div className="flex flex-col gap-2">
