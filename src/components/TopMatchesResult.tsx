@@ -107,7 +107,8 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
         [...matchesWithRank].sort((a, b) => {
             switch (sortBy) {
                 case 'rank':
-                    return a.originalRank - b.originalRank;
+                    // Sort by tracksPerShow (descending) - this is the "Average Matched Tracks Per Show" metric
+                    return b.tracksPerShow - a.tracksPerShow;
                 case 'tracks':
                     return b.matchedTracksCount - a.matchedTracksCount;
                 case 'artists':
