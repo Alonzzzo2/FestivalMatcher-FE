@@ -1,6 +1,7 @@
 import React from 'react';
 import { FestivalMatchResponse } from '../types';
 import { trackClashfinderClick } from '../utils/analytics';
+import { decodeHtmlEntities } from '../utils/htmlUtils';
 
 interface ScoreCardProps {
     festival: FestivalMatchResponse;
@@ -15,12 +16,6 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
     mode,
     showPlaylistInfo = true
 }) => {
-    const decodeHtmlEntities = (text: string): string => {
-        const textarea = document.createElement('textarea');
-        textarea.innerHTML = text;
-        return textarea.value;
-    };
-
     const formatDate = (isoDateString: string): string => {
         // Handle invalid or missing dates
         if (!isoDateString) {

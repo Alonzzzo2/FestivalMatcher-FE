@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { FestivalMatchResponse } from '../types';
 import ScoreCard from './ScoreCard';
 import { trackSortChange, trackLoadMore, trackFilterChange } from '../utils/analytics';
+import { decodeHtmlEntities } from '../utils/htmlUtils';
 
 interface TopMatchesResultProps {
     matches: FestivalMatchResponse[];
@@ -50,12 +51,6 @@ const saveSortPreference = (mode: 'liked' | 'playlist', sortBy: SortOption) => {
 };
 
 export default function TopMatchesResult({ matches, onReset, year, title, mode }: TopMatchesResultProps) {
-    const decodeHtmlEntities = (text: string): string => {
-        const textarea = document.createElement('textarea');
-        textarea.innerHTML = text;
-        return textarea.value;
-    };
-
     // Initialize sortBy from localStorage based on mode
     const [sortBy, setSortBy] = useState<SortOption>(() => loadSortPreference(mode));
 
