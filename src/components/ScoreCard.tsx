@@ -1,6 +1,7 @@
 import React from 'react';
 import { FestivalMatchResponse } from '../types';
 import { trackClashfinderClick } from '../utils/analytics';
+import { decodeHtmlEntities } from '../utils/htmlUtils';
 
 interface ScoreCardProps {
     festival: FestivalMatchResponse;
@@ -95,7 +96,7 @@ const ScoreCard: React.FC<ScoreCardProps> = ({
                             <p className="text-xs text-gray-500">by {playlist.owner}</p>
                         )}
                         {playlist.description && (
-                            <p className="text-xs text-gray-500 mt-1 line-clamp-2" title={playlist.description}>{playlist.description}</p>
+                            <p className="text-xs text-gray-500 mt-1 line-clamp-2" title={decodeHtmlEntities(playlist.description)}>{decodeHtmlEntities(playlist.description)}</p>
                         )}
                     </div>
                     <div className="flex flex-col gap-2">

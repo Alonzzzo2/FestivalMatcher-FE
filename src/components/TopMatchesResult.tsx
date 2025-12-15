@@ -2,6 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { FestivalMatchResponse } from '../types';
 import ScoreCard from './ScoreCard';
 import { trackSortChange, trackLoadMore, trackFilterChange } from '../utils/analytics';
+import { decodeHtmlEntities } from '../utils/htmlUtils';
 
 interface TopMatchesResultProps {
     matches: FestivalMatchResponse[];
@@ -188,7 +189,7 @@ export default function TopMatchesResult({ matches, onReset, year, title, mode }
                             <p className="text-xs text-gray-400">by {playlistMetadata.owner}</p>
                         )}
                         {playlistMetadata.description && (
-                            <p className="text-xs text-gray-400 mt-1 line-clamp-2" title={playlistMetadata.description}>{playlistMetadata.description}</p>
+                            <p className="text-xs text-gray-400 mt-1 line-clamp-2" title={decodeHtmlEntities(playlistMetadata.description)}>{decodeHtmlEntities(playlistMetadata.description)}</p>
                         )}
                     </div>
                     <div className="flex flex-col gap-2">
